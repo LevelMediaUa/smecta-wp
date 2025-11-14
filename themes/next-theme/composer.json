@@ -1,0 +1,15 @@
+{
+    "name": "next/next-theme",
+    "autoload": {
+        "psr-4": {
+            "Next\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "RobertPaulsonUK",
+            "email": "test@gmail.com"
+        }
+    ],
+    "require": {}
+}

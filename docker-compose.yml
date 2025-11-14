@@ -1,0 +1,56 @@
+services:
+  wordpress:
+    image: wordpress:latest
+    volumes:
+        - wp_app:/var/www/html
+        - ../files/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+#      - ./themes/:/var/www/html/wp-content/themes
+#      - ./plugins/:/var/www/html/wp-content/plugins
+#      - ./uploads/:/var/www/html/wp-content/uploads
+#    command: >
+#      bash -c "
+#      chown -R www-data:www-data /var/www/html/wp-content /var/www/html/wp-content/uploads /var/www/html/wp-content/themes /var/www/html/wp-content/plugins &&
+#      apache2-foreground
+#      "
+    environment:
+      WORDPRESS_DB_HOST: wp_db
+      WORDPRESS_DB_NAME: $DB_NAME
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: $DB_PASSWORD
+      WORDPRESS_DEBUG: ${WORDPRESS_DEBUG:-0}
+    depends_on:
+      wp_db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  wp_db:
+    image: mysql:8.4
+    restart: unless-stopped
+    volumes:
+      - wp_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: $DB_PASSWORD
+      MYSQL_DATABASE: $DB_NAME
+    healthcheck:
+      test: ["CMD-SHELL", "exit | mysql -h localhost -P 3306 -u root -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: wp_db
+      PMA_USER: root
+      PMA_PASSWORD: $DB_PASSWORD
+      UPLOAD_LIMIT: 64M
+      PMA_ARBITRARY: 1
+    restart: always
+    depends_on:
+      - wp_db
+
+volumes:
+  wp_app:
+  wp_data:
+  phpmyadmin:
