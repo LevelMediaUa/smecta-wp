@@ -51,5 +51,6 @@ services:
       - wp_db
 
 volumes:
+  wp_app:
   wp_data:
   phpmyadmin:
