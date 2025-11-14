@@ -2,15 +2,15 @@ services:
   wordpress:
     image: wordpress:latest
     volumes:
-        - wp_app:/var/www/html
+#        - wp_app:/var/www/html
         - ../files/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
-#      - ./themes/:/var/www/html/wp-content/themes
-#      - ./plugins/:/var/www/html/wp-content/plugins
-#      - ./uploads/:/var/www/html/wp-content/uploads
-#    command: >
-#      bash -c "
-#      chown -R www-data:www-data /var/www/html/wp-content /var/www/html/wp-content/uploads /var/www/html/wp-content/themes /var/www/html/wp-content/plugins &&
-#      apache2-foreground
+        - ./themes/:/var/www/html/wp-content/themes
+        - ./plugins/:/var/www/html/wp-content/plugins
+        - ./uploads/:/var/www/html/wp-content/uploads
+    command: >
+      bash -c "
+      chown -R www-data:www-data /var/www/html/wp-content /var/www/html/wp-content/uploads /var/www/html/wp-content/themes /var/www/html/wp-content/plugins &&
+      apache2-foreground
 #      "
     environment:
       WORDPRESS_DB_HOST: wp_db
@@ -42,7 +42,7 @@ services:
     image: phpmyadmin/phpmyadmin
     environment:
       PMA_HOST: wp_db
-      PMA_USER: $DB_USER
+      PMA_USER: root
       PMA_PASSWORD: $DB_PASSWORD
       UPLOAD_LIMIT: 64M
       PMA_ARBITRARY: 1
