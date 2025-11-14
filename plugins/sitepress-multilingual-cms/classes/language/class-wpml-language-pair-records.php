@@ -87,7 +87,7 @@ class WPML_Language_Pair_Records implements ILanguagePairs {
 		return $this->convert_from_storage_format( $language_pairs );
 	}
 
-	private function convert_to_storage_format( $language_pairs ) {
+	public function convert_to_storage_format( $language_pairs ) {
 		if ( $this->is_in_storage_format( $language_pairs ) ) {
 			return $language_pairs;
 		}

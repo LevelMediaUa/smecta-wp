@@ -78,16 +78,31 @@ class OTGS_Installer_Plugin_Finder {
 	}
 
 	public function get_otgs_installed_plugins_by_repository() {
+		return $this->getOTGSInstalledPluginsByRepository();
+	}
+
+	public function getOTGSInstalledPluginsByRepository( $withActiveFlag = false, $withVersions = false ) {
 		$installed_plugins = [];
 
 		/** @var OTGS_Installer_Plugin $plugin */
 		foreach ( $this->plugins as $plugin ) {
 			if ( $plugin->get_installed_version() ) {
-				$installed_plugins[ $plugin->get_repo() ][] = [
-					'id' => $plugin->get_id(),
+				$pluginInfo = [
+					'id'   => $plugin->get_id(),
 					'slug' => $plugin->get_slug(),
 					'name' => $plugin->get_name(),
 				];
+
+				if ( $withActiveFlag ) {
+					$pluginInfo['active'] = is_plugin_active( $plugin->get_id() );
+				}
+
+				if ( $withVersions ) {
+					$pluginInfo['current_version']   = $plugin->get_version();
+					$pluginInfo['installed_version'] = $plugin->get_installed_version();
+				}
+
+				$installed_plugins[ $plugin->get_repo() ][] = $pluginInfo;
 			}
 		}
 

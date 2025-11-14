@@ -50,6 +50,7 @@ class WPML_Lang_Domains_Box extends WPML_SP_User {
                                     name="language_domains[<?php echo esc_attr( $code ); ?>]"
                                     value="<?php echo $this->get_language_domain( $code, $default_home, $language_domains ); ?>"
                                     data-language="<?php echo esc_attr( $code ); ?>"
+									aria-description="<?php esc_attr_e( 'Edit to change the domain for the language', 'sitepress' ); ?>"
                                     size="30"/>
 							<?php if ( isset( $home_path[1] ) && is_string( $home_path[1] ) ) { ?>
                                 <code><?php echo esc_html( $home_path ); ?></code>
@@ -57,7 +58,7 @@ class WPML_Lang_Domains_Box extends WPML_SP_User {
                         </td>
                         <td>
                             <p style="white-space: nowrap"><input
-                                        class="validate_language_domain"
+                                        class="wpml-checkbox-native validate_language_domain"
                                         type="checkbox"
                                         id="validate_language_domains_<?php echo esc_attr( $code ); ?>"
                                         name="validate_language_domains[]"
@@ -83,7 +84,7 @@ class WPML_Lang_Domains_Box extends WPML_SP_User {
             <tr>
                 <td colspan="2">
                     <label for="sso_enabled">
-                        <input type="checkbox" id="sso_enabled" name="sso_enabled"
+                        <input class="wpml-checkbox-native" type="checkbox" id="sso_enabled" name="sso_enabled"
                                value="1" <?php checked( $is_sso_enabled, true, true ); ?>>
 						<?php esc_html_e( 'Auto sign-in and sign-out users from all domains', 'sitepress' ); ?>
                     </label>

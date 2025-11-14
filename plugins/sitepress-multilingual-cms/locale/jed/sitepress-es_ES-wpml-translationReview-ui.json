@@ -4,6 +4,7 @@
       "messages": {
          "": {
             "domain": "messages",
+            "plural_forms": "nplurals=2; plural=(n != 1);",
             "lang": "es_ES"
          },
          "Accepted": [
@@ -30,9 +31,6 @@
          "Edit translation": [
             "Editar traducción"
          ],
-         "Please wait, applying translation..": [
-            "Espere, por favor. Aplicando traducción..."
-         ],
          "Next review": [
             "Siguiente revisión"
          ],
@@ -45,11 +43,14 @@
          "Published!": [
             "¡Publicado!"
          ],
-         "Someone is already reviewing this translation. Please try again later.": [
-            "Ya hay alguien revisando esta traducción. Inténtelo de nuevo más tarde."
+         "Please wait, applying translation..": [
+            "Espere, por favor. Aplicando traducción..."
          ],
          "There was an error in applying translation.": [
             "Ocurrió un error al aplicar la traducción."
+         ],
+         "Someone is already reviewing this translation. Please try again later.": [
+            "Ya hay alguien revisando esta traducción. Inténtelo de nuevo más tarde."
          ]
       }
    }

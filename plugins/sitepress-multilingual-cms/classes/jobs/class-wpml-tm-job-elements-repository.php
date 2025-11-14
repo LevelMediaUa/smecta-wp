@@ -1,5 +1,7 @@
 <?php
 
+use WPML\Translation\TranslationElements\FieldCompression;
+
 class WPML_TM_Job_Elements_Repository {
 
 	/** @var wpdb */
@@ -44,8 +46,8 @@ class WPML_TM_Job_Elements_Repository {
 			$raw_data->field_type,
 			$raw_data->field_format,
 			$raw_data->field_translate,
-			$raw_data->field_data,
-			$raw_data->field_data_translated,
+			FieldCompression::decompress( $raw_data->field_data, true ),
+			FieldCompression::decompress( $raw_data->field_data_translated, true ),
 			$raw_data->field_finished
 		);
 	}

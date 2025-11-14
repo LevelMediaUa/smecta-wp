@@ -1,26 +1,34 @@
 <?php
 
-use WPML\FP\Obj;
-use WPML\Collect\Support\Collection;
+use WPML\API\Settings;
+use WPML\Element\API\Translations;
 
 class WPML_TM_Post_Edit_TM_Editor_Mode {
 
-	const POST_META_KEY_USE_NATIVE = '_wpml_post_translation_editor_native';
+	const POST_META_KEY_USE_NATIVE        = '_wpml_post_translation_editor_native';
 	const TM_KEY_FOR_POST_TYPE_USE_NATIVE = 'post_translation_editor_native_for_post_type';
-	const TM_KEY_GLOBAL_USE_NATIVE = 'post_translation_editor_native';
+	const TM_KEY_GLOBAL_USE_NATIVE        = 'post_translation_editor_native';
+
+	const POST_META_KEY_USE_WPML        = '_wpml_post_translation_editor_wpml';
+	const TM_KEY_FOR_POST_TYPE_USE_WPML = 'post_translation_editor_wpml_for_post_type';
+	const TM_KEY_GLOBAL_USE_WPML        = 'post_translation_editor_wpml';
 
 	/**
 	 * Check post meta first
 	 * Then check setting for post type
 	 * Then finally check global setting
 	 *
-	 * @param SitePress $sitepress
-	 * @param $post
+	 * @param mixed $deprecated (Deprecated) There is no need to pass `SitePress` instance.
+	 * @param int $post_id
+	 * @param bool $should_find_original_id (Optional) If not passing original ID, it will be found. Default: true
 	 *
 	 * @return bool
 	 */
-	public static function is_using_tm_editor( SitePress $sitepress, $post_id ) {
-		$post_id = self::get_source_id( $sitepress, $post_id, 'post_' . get_post_type( $post_id ) );
+	public static function is_using_tm_editor( $deprecated, $post_id, $should_find_original_id = true ) {
+		if ( $should_find_original_id ) {
+			$original_id = (int) Translations::getOriginalId( $post_id, 'post_' . get_post_type( $post_id ) );
+			$post_id = $original_id ?: $post_id;
+		}
 
 		$post_meta = get_post_meta( $post_id, self::POST_META_KEY_USE_NATIVE, true );
 		if ( 'no' === $post_meta ) {
@@ -29,24 +37,41 @@ class WPML_TM_Post_Edit_TM_Editor_Mode {
 			return false;
 		}
 
-		$tm_settings = self::init_settings( $sitepress );
+		$tm_settings = self::init_settings();
 
 		$post_type = get_post_type( $post_id );
 		if ( isset( $tm_settings[ self::TM_KEY_FOR_POST_TYPE_USE_NATIVE ][ $post_type ] ) ) {
 			return ! $tm_settings[ self::TM_KEY_FOR_POST_TYPE_USE_NATIVE ][ $post_type ];
+		} else if ( isset( $tm_settings[ self::TM_KEY_FOR_POST_TYPE_USE_WPML ][ $post_type ] ) ) {
+			return $tm_settings[ self::TM_KEY_FOR_POST_TYPE_USE_WPML ][ $post_type ];
 		}
 
 		return ! $tm_settings[ self::TM_KEY_GLOBAL_USE_NATIVE ];
 	}
 
 	/**
-	 * @param SitePress $sitepress
+	 * @param string $post_type (Optional) Provide post type to check against it or empty for global setting.
+	 *
+	 * @return bool
+	 */
+	public static function is_post_type_using_wp_editor( $post_type = '' ) : bool {
+		$tm_settings = self::init_settings();
+
+		if ( $post_type && isset( $tm_settings[ self::TM_KEY_FOR_POST_TYPE_USE_NATIVE ][ $post_type ] ) ) {
+			return (bool) $tm_settings[ self::TM_KEY_FOR_POST_TYPE_USE_NATIVE ][ $post_type ];
+		}
+
+		return (bool) $tm_settings[ self::TM_KEY_GLOBAL_USE_NATIVE ] ?? false;
+	}
+
+	/**
+	 * @param mixed $deprecated (Deprecated) There is no need to pass `SitePress` instance.
 	 * @param int $postId
 	 *
 	 * @return array
 	 */
-	public static function get_editor_settings( SitePress $sitepress, $postId ) {
-		$useTmEditor = \WPML_TM_Post_Edit_TM_Editor_Mode::is_using_tm_editor( $sitepress, $postId );
+	public static function get_editor_settings( $deprecated, $postId ) {
+		$useTmEditor = \WPML_TM_Post_Edit_TM_Editor_Mode::is_using_tm_editor( null, $postId );
 		$useTmEditor = apply_filters( 'wpml_use_tm_editor', $useTmEditor, $postId );
 
 		$result = self::get_blocked_posts( [ $postId ] );
@@ -86,38 +111,10 @@ class WPML_TM_Post_Edit_TM_Editor_Mode {
 	}
 
 	/**
-	 * @param SitePress $sitepress
-	 * @param int $post_id
-	 * @param string $wpml_post_type
-	 *
-	 * @return int
-	 */
-	private static function get_source_id( SitePress $sitepress, $post_id, $wpml_post_type ) {
-		$source_id    = $post_id;
-		$trid         = $sitepress->get_element_trid( $post_id, $wpml_post_type );
-		$translations = $sitepress->get_element_translations( $trid, $wpml_post_type );
-
-		if ( ! $translations ) {
-			return (int) $post_id;
-		}
-
-		foreach ( $translations as $translation ) {
-			if ( $translation->original ) {
-				$source_id = $translation->element_id;
-				break;
-			}
-		}
-
-		return (int) $source_id;
-	}
-
-	/**
-	 * @param SitePress $sitepress
-	 *
 	 * @return array
 	 */
-	private static function init_settings( SitePress $sitepress ) {
-		$tm_settings = $sitepress->get_setting( 'translation-management' );
+	private static function init_settings() {
+		$tm_settings = Settings::get( 'translation-management', [] );
 
 		/**
 		 * Until a user explicitly change the settings through
@@ -148,17 +145,20 @@ class WPML_TM_Post_Edit_TM_Editor_Mode {
 		global $wpdb;
 
 		if ( $post_type ) {
+			$meta_keys  = [ self::POST_META_KEY_USE_NATIVE, self::POST_META_KEY_USE_WPML ];
+			$prepare_in = wpml_prepare_in( $meta_keys );
+
 			$wpdb->query(
 				$wpdb->prepare(
 					"DELETE postmeta FROM {$wpdb->postmeta} AS postmeta
 					 INNER JOIN {$wpdb->posts} AS posts ON posts.ID = postmeta.post_id
-					 WHERE posts.post_type = %s AND postmeta.meta_key = %s",
-					$post_type,
-					self::POST_META_KEY_USE_NATIVE
+					 WHERE posts.post_type = %s AND postmeta.meta_key IN ( $prepare_in )",
+					$post_type
 				)
 			);
 		} else {
 			delete_post_meta_by_key( self::POST_META_KEY_USE_NATIVE );
+			delete_post_meta_by_key( self::POST_META_KEY_USE_WPML );
 		}
 	}
 }

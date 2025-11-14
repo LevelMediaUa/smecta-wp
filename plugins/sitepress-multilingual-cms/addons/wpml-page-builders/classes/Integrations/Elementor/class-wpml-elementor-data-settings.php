@@ -32,10 +32,10 @@ class WPML_Elementor_Data_Settings implements IWPML_Page_Builders_Data_Settings 
 	}
 
 	/**
-	 * @param  array  $value
-	 * @param  int    $translated_post_id
-	 * @param  int    $original_post_id
-	 * @param  string $meta_key
+	 * @param array|mixed $value
+	 * @param int         $translated_post_id
+	 * @param int         $original_post_id
+	 * @param string      $meta_key
 	 *
 	 * @return mixed
 	 */
@@ -80,6 +80,7 @@ class WPML_Elementor_Data_Settings implements IWPML_Page_Builders_Data_Settings 
 		return [
 			'_elementor_version',
 			self::META_KEY_MODE,
+			'_elementor_page_settings',
 			'_elementor_css',
 			'_elementor_template_type',
 			'_elementor_template_widget_type',

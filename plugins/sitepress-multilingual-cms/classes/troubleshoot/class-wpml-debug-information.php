@@ -8,6 +8,8 @@ class WPML_Debug_Information {
 	/** @var SitePress $sitepress */
 	protected $sitepress;
 
+	protected $info;
+
 	/**
 	 * @param wpdb      $wpdb
 	 * @param SitePress $sitepress
@@ -15,6 +17,7 @@ class WPML_Debug_Information {
 	public function __construct( $wpdb, $sitepress ) {
 		$this->wpdb      = $wpdb;
 		$this->sitepress = $sitepress;
+		$this->info  = new WPML_Support_Info( $this->wpdb );
 	}
 
 	public function run() {
@@ -52,7 +55,7 @@ class WPML_Debug_Information {
 				'PermalinkStructure' => get_option( 'permalink_structure' ),
 				'PostTypes'          => implode( ', ', get_post_types( '', 'names' ) ),
 				'PostStatus'         => implode( ', ', get_post_stati() ),
-				'RestEnabled'        => wpml_is_rest_enabled() ? 'Yes' : 'No',
+				'RestEnabled'        => wpml_is_rest_enabled(false) ? 'Yes' : 'No',
 			),
 			'Server'    => array(
 				'jQueryVersion'  => wp_script_is( 'jquery', 'registered' ) ? $GLOBALS['wp_scripts']->registered['jquery']->ver : __( 'n/a', 'bbpress' ),
@@ -61,8 +64,9 @@ class WPML_Debug_Information {
 				'ServerSoftware' => $_SERVER['SERVER_SOFTWARE'],
 			),
 			'PHP'       => array(
-				'MemoryLimit'     => ini_get( 'memory_limit' ),
-				'WP Memory Limit' => WP_MEMORY_LIMIT,
+				'MemoryLimit'     => $this->info->get_php_memory_limit(),
+				'WP Memory Limit' => $this->info->get_wp_memory_limit(),
+				'WP Max Memory'   => $this->info->get_wp_max_memory_limit(),
 				'UploadMax'       => ini_get( 'upload_max_filesize' ),
 				'PostMax'         => ini_get( 'post_max_size' ),
 				'TimeLimit'       => ini_get( 'max_execution_time' ),

@@ -16,7 +16,12 @@ class Copy implements IHandler {
 
 		$result = $report->copy();
 
-		return $result ? Either::of( true ) : Either::left( 'Failed to report' );
+		if ( $result ) {
+			do_action( 'wpml_tm_cloned_site_reported', $result );
+			return Either::of( true );
+		}
+
+		return Either::left( 'Failed to report' );
 	}
 
 }

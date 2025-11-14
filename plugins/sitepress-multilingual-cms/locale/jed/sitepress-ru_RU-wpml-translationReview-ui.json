@@ -3,7 +3,9 @@
    "locale_data": {
       "messages": {
          "": {
-            "domain": "messages"
+            "domain": "messages",
+            "plural_forms": "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);",
+            "lang": "ru_RU"
          },
          "Accepted": [
             "Принято"
@@ -29,9 +31,6 @@
          "Edit translation": [
             "Редактировать перевод"
          ],
-         "Please wait, applying translation..": [
-            "Подождите, применяется перевод..."
-         ],
          "Next review": [
             "Следующая проверка"
          ],
@@ -44,11 +43,14 @@
          "Published!": [
             "Опубликовано!"
          ],
-         "Someone is already reviewing this translation. Please try again later.": [
-            "Кто-то уже просматривает этот перевод. Пожалуйста, повторите попытку позже."
+         "Please wait, applying translation..": [
+            "Подождите, применяется перевод..."
          ],
          "There was an error in applying translation.": [
             "Во время применения перевода произошла ошибка."
+         ],
+         "Someone is already reviewing this translation. Please try again later.": [
+            "Кто-то уже просматривает этот перевод. Пожалуйста, повторите попытку позже."
          ]
       }
    }

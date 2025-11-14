@@ -38,17 +38,16 @@ class WPML_LS_Public_API {
 
 	/**
 	 * @param array       $args
-	 * @param string|null $twig_template
 	 *
 	 * @return string
 	 */
-	protected function render( $args, $twig_template = null ) {
+	protected function render( $args ) {
 		$defaults_slot_args = $this->get_default_slot_args( $args );
 		$slot_args          = array_merge( $defaults_slot_args, $args );
 
 		$slot = $this->get_slot_factory()->get_slot( $slot_args );
 		$slot->set( 'show', 1 );
-		$slot->set( 'template_string', $twig_template );
+		$slot->set( 'template_string', null );
 
 		if ( $slot->is_post_translations() ) {
 			$output = $this->render->post_translations_label( $slot );

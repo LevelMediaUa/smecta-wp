@@ -15,9 +15,13 @@ class WPML_Fix_Type_Assignments extends WPML_WPDB_And_SP_User {
 	/**
 	 * Runs various database repair and cleanup actions on icl_translations.
 	 *
+	 * @param array $data
+	 *
 	 * @return int Number of rows in icl_translations that were fixed
 	 */
-	public function run() {
+	public function run( $data = [] ) {
+		$rows_left = 0;
+
 		$rows_fixed  = $this->fix_broken_duplicate_rows();
 		$rows_fixed += $this->fix_missing_original();
 		$rows_fixed += $this->fix_wrong_source_language();
@@ -25,10 +29,19 @@ class WPML_Fix_Type_Assignments extends WPML_WPDB_And_SP_User {
 		$rows_fixed += $this->fix_broken_taxonomy_assignments();
 		$rows_fixed += $this->fix_broken_post_assignments();
 		$rows_fixed += $this->fix_mismatched_types();
+
+		$res = $this->fix_orphan_attachments( $data );
+
+		$rows_fixed += $res[0];
+		$rows_left  += $res[1];
+
 		icl_cache_clear();
 		wp_cache_init();
 
-		return $rows_fixed;
+		return [
+			'rowsFixed' => $rows_fixed,
+			'rowsLeft'  => $rows_left,
+		];
 	}
 
 	/**
@@ -267,4 +280,50 @@ class WPML_Fix_Type_Assignments extends WPML_WPDB_And_SP_User {
 		return $rows_affected;
 	}
 
+	/**
+	 * @param array $data
+	 *
+	 *  @return array
+	 */
+	private function fix_orphan_attachments( $data ) {
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.Prepared, WordPress.DB.PreparedSQL.NotPrepared
+		$has_orphan_attachments = $this->wpdb->get_var(
+			"SELECT ID
+			FROM {$this->wpdb->posts} as posts
+			LEFT JOIN {$this->wpdb->prefix}icl_translations as translations
+			ON posts.ID = translations.element_id
+			WHERE posts.post_type = 'attachment'
+			AND translations.element_id IS NULL
+			LIMIT 0, 1"
+		);
+
+		if ( ! $has_orphan_attachments ) {
+			return [ 0, 0 ];
+		}
+
+		$default_language     = $this->sitepress->get_default_language();
+		$limit                = array_key_exists( 'limit', $data ) ? (int) $data['limit'] : 10;
+		$attachments_prepared = $this->wpdb->prepare(
+			"
+        SELECT SQL_CALC_FOUND_ROWS ID FROM {$this->wpdb->posts} WHERE post_type = %s AND ID NOT IN
+        (SELECT element_id FROM {$this->wpdb->prefix}icl_translations WHERE element_type=%s) LIMIT %d",
+			array(
+				'attachment',
+				'post_attachment',
+				$limit,
+			)
+		);
+
+		$attachments = $this->wpdb->get_col( $attachments_prepared );
+		$found       = (int) $this->wpdb->get_var( 'SELECT FOUND_ROWS()' );
+
+		foreach ( $attachments as $attachment_id ) {
+			$this->sitepress->set_element_language_details( $attachment_id, 'post_attachment', false, $default_language );
+		}
+
+		$left = max( $found - $limit, 0 );
+
+		return [ $limit, $left ];
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.Prepared, WordPress.DB.PreparedSQL.NotPrepared
+	}
 }

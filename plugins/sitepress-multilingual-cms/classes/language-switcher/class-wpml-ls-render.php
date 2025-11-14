@@ -48,6 +48,7 @@ class WPML_LS_Render extends WPML_SP_User {
 
 			add_filter( 'wp_get_nav_menu_items', array( $this, 'wp_get_nav_menu_items_filter' ), 10, 2 );
 			add_filter( 'wp_setup_nav_menu_item', array( $this, 'maybe_repair_menu_item' ), PHP_INT_MAX );
+			add_filter( 'nav_menu_link_attributes', array( $this, 'add_menu_link_accessibility_attributes' ), 10, 2 );
 
 			add_filter( 'the_content', array( $this, 'the_content_filter' ), self::THE_CONTENT_FILTER_PRIORITY );
 			if ( ! $this->is_widgets_page() ) {
@@ -72,15 +73,17 @@ class WPML_LS_Render extends WPML_SP_User {
 			$this->assets->maybe_late_enqueue_template( $slot->template() );
 			$this->current_template = clone $this->templates->get_template( $slot->template() );
 
+			$sandbox = false;
 			if ( $slot->template_string() ) {
 				$this->current_template->set_template_string( $slot->template_string() );
+				$sandbox = true;
 			}
 
 			$model = $this->model_build->get( $slot, $this->current_template->get_template_data() );
 
 			if ( $model['languages'] ) {
 				$this->current_template->set_model( $model );
-				$html = $this->current_template->get_html();
+				$html = $this->current_template->get_html( $sandbox );
 			}
 		}
 
@@ -350,5 +353,27 @@ class WPML_LS_Render extends WPML_SP_User {
 		if ( $slot->is_enabled() ) {
 			echo $this->render( $slot );
 		}
+	}
+
+	/**
+	 * Adds accessibility attributes to the menu link element
+	 *
+	 * @param array    $atts The HTML attributes applied to the menu item's link element
+	 * @param WP_Post|WPML_LS_Menu_Item $item The current menu item
+	 *
+	 * @return array Modified attributes
+	 */
+	public function add_menu_link_accessibility_attributes( $atts, $item ) {
+		if ( $item instanceof WPML_LS_Menu_Item ) {
+			if ( isset( $item->aria_label ) ) {
+				$atts['aria-label'] = $item->aria_label;
+			}
+
+			if (isset( $item->link_role ) ) {
+				$atts['role'] = $item->link_role;
+			}
+		}
+
+		return $atts;
 	}
 }

@@ -15,6 +15,7 @@ use WPML\TM\API\Jobs;
 use WPML\TM\API\Translators;
 use WPML\Core\WP\App\Resources;
 use WPML\FP\Obj;
+use WPML\TM\ATE\UpdateTranslation\UpdateTranslation;
 use function WPML\FP\pipe;
 use function WPML\FP\spreadArgs;
 

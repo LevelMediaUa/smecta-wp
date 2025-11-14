@@ -1,5 +1,6 @@
 <?php
 
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.LowLevelTranslationFunction, WordPress.WP.I18n.TooManyFunctionArgs, WordPress.WP.I18n.NonSingularStringLiteralDomain
 class WPML_Cornerstone_Media_Nodes_Iterator implements IWPML_PB_Media_Nodes_Iterator {
 
 	const ITEMS_FIELD = WPML_Cornerstone_Module_With_Items::ITEMS_FIELD;
@@ -11,7 +12,7 @@ class WPML_Cornerstone_Media_Nodes_Iterator implements IWPML_PB_Media_Nodes_Iter
 	}
 
 	/**
-	 * @param array $data_array
+	 * @param array  $data_array
 	 * @param string $lang
 	 * @param string $source_lang
 	 *
@@ -31,8 +32,8 @@ class WPML_Cornerstone_Media_Nodes_Iterator implements IWPML_PB_Media_Nodes_Iter
 
 	/**
 	 * @param stdClass $settings
-	 * @param string $lang
-	 * @param string $source_lang
+	 * @param string   $lang
+	 * @param string   $source_lang
 	 *
 	 * @return stdClass
 	 */
@@ -44,5 +45,12 @@ class WPML_Cornerstone_Media_Nodes_Iterator implements IWPML_PB_Media_Nodes_Iter
 		}
 
 		return $settings;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function get_media() {
+		return $this->node_provider->get_media();
 	}
 }

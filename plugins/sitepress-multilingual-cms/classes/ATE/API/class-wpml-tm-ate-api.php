@@ -35,6 +35,9 @@ class WPML_TM_ATE_API {
 	private $auth;
 	private $endpoints;
 
+	/** @var string[] */
+	private static $forbidden_requests = [];
+
 	/**
 	 * @var ClonedSitesHandler
 	 */
@@ -160,16 +163,21 @@ class WPML_TM_ATE_API {
 		$return_url = filter_var( $return_url, FILTER_SANITIZE_URL );
 
 		$url = $this->endpoints->get_ate_editor();
+
 		$url = str_replace(
 			[
 				'{job_id}',
 				'{translator_email}',
 				'{return_url}',
+				'{wpml_ph_distinct_id}',
+				'{wpml_ph_session_id}',
 			],
 			[
 				$job_id,
 				$translator_email ? urlencode( $translator_email ) : '',
 				$return_url ? urlencode( $return_url ) : '',
+				isset( $_COOKIE['wpml_ph_distinct_id'] ) ? urlencode( $_COOKIE['wpml_ph_distinct_id'] ) : '',
+				isset( $_COOKIE['wpml_ph_session_id'] ) ? urlencode( $_COOKIE['wpml_ph_session_id'] ) : '',
 			],
 			$url
 		);
@@ -357,24 +365,44 @@ class WPML_TM_ATE_API {
 	public function get_languages_supported_by_automatic_translations( $languageCodes, $sourceLanguage = null ) {
 		$sourceLanguage = $sourceLanguage ?: Languages::getDefaultCode();
 
-		$result = $this->requestWithLog(
-			$this->endpoints->getLanguagesCheckPairs(),
-			[
-				'method' => 'POST',
-				'body'   => [
-					[
-						'source_language'  => $sourceLanguage,
-						'target_languages' => $languageCodes,
+		$getLanguagesCheckPairs = function () use ( $languageCodes, $sourceLanguage ) {
+			return $this->requestWithLog(
+				$this->endpoints->getLanguagesCheckPairs(),
+				[
+					'method' => 'POST',
+					'body'   => [
+						[
+							'source_language'  => $sourceLanguage,
+							'target_languages' => $languageCodes,
+						]
 					]
-				]
-			]
-		);
+				],
+				__( 'WPML Failed to check language pairs', 'sitepress' )
+			);
+		};
 
-		return Maybe::of( $result )
-		            ->reject( 'is_wp_error' )
-		            ->map( Obj::prop( 'results' ) )
-		            ->map( Lst::find( Relation::propEq( 'source_language', $sourceLanguage ) ) )
-		            ->map( Obj::prop( 'target_languages' ) );
+		$extractData = function ( $response ) use ( $sourceLanguage ) {
+			return Maybe::of( $response )
+			            ->reject( 'is_wp_error' )
+			            ->map( Obj::prop( 'results' ) )
+			            ->map( Lst::find( Relation::propEq( 'source_language', $sourceLanguage ) ) )
+			            ->map( Obj::prop( 'target_languages' ) );
+		};
+
+
+		$languagePairs = $getLanguagesCheckPairs();
+		// $getLanguagesCheckPairs() needs to be evaluated separately because doing it
+		// inside $extractData( ... ) will result into a false positive in 3rd party security scanners.
+		$result = $extractData( $languagePairs );
+
+		// Simple re-try because maybe ATE is temporarily disabled at this point.
+		if ( Fns::isNothing( $result ) ) {
+			// We need to make sure we call ``$getLanguagesCheckPairs`` again so the ATE request is retried.
+			$languagePairs = $getLanguagesCheckPairs();
+			$result = $extractData( $languagePairs );
+		}
+
+		return $result;
 	}
 
 	/**
@@ -611,6 +639,14 @@ class WPML_TM_ATE_API {
 		return null;
 	}
 
+
+	/**
+	 * @return array|WP_Error
+	 */
+	public function get_website_context() {
+		return $this->requestWithLog( $this->endpoints->get_website_context() );
+	}
+
 	/**
 	 * @param int $page
 	 *
@@ -676,6 +712,10 @@ class WPML_TM_ATE_API {
 			return $lock;
 		}
 
+		if ( isset( self::$forbidden_requests[ $url ] ) ) {
+			return self::$forbidden_requests[ $url ];
+		}
+
 		$requestArgs = array_merge(
 			[
 				'timeout' => 60,
@@ -694,7 +734,10 @@ class WPML_TM_ATE_API {
 			return $signedUrl;
 		}
 
-		if ( $bodyArgs ) {
+		// For GET requests there's no point sending parameters in the body.
+		// Actually, this will trigger an error in WP_HTTP Curl class when
+		// trying to build the params into a string.
+		if ( $bodyArgs && $requestArgs['method'] !== 'GET' ) {
 			$requestArgs['body'] = $this->encode_body_args( $bodyArgs );
 		}
 
@@ -704,7 +747,25 @@ class WPML_TM_ATE_API {
 			$result = $this->clonedSitesHandler->handleClonedSiteError( $result );
 		}
 
-		return $this->get_response( $result );
+		$response = $this->get_response( $result );
+
+		/**
+		 * When the ATE credentials are removed, or a site uses different ATE servers,
+		 * the response will be 403 (and not 426, which indicates a copied sites).
+		 * Both cases are not real cases for client sites, but can happen on internal
+		 * sandboxes. The following prevents false alerts for slow page loads.
+		 *
+		 * See wpmldev-4267 for more details.
+		 */
+		if (
+			is_array( $result )
+			&& isset( $result['response']['code'] )
+			&& 403 === $result['response']['code']
+		) {
+			self::$forbidden_requests[ $url ] = $response;
+		}
+
+		return $response;
 	}
 
 	/**
@@ -713,7 +774,7 @@ class WPML_TM_ATE_API {
 	 *
 	 * @return array|int|float|object|string|WP_Error|null
 	 */
-	private function requestWithLog( $url, array $requestArgs = [] ) {
+	private function requestWithLog( $url, array $requestArgs = [], $extraMessage = "" ) {
 		$response = $this->request( $url, $requestArgs );
 
 		if ( is_wp_error( $response ) ) {
@@ -725,6 +786,10 @@ class WPML_TM_ATE_API {
 				'url'         => $url,
 				'requestArgs' => $requestArgs,
 			];
+
+			if ( $extraMessage ) {
+				$entry->extraData['extraMessage'] = $extraMessage;
+			}
 
             if ( $errorCode ) {
                 $entry->extraData['status'] = $errorCode;

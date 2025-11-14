@@ -8,6 +8,7 @@ abstract class WPML_Translation_Roles_Records {
 	const USERS_WITHOUT_CAPABILITY = 'NOT LIKE';
 	const MIN_SEARCH_LENGTH        = 3;
 	const CACHE_GROUP              = __CLASS__;
+	const CACHE_PREFIX             = 'wpml-cache-translators-';
 
 	/** @var wpdb */
 	protected $wpdb;
@@ -18,6 +19,8 @@ abstract class WPML_Translation_Roles_Records {
 	/** @var \WP_Roles */
 	protected $wp_roles;
 
+	protected $administratorRoleManager;
+
 	/**
 	 * WPML_Translation_Roles_Records constructor.
 	 *
@@ -25,10 +28,20 @@ abstract class WPML_Translation_Roles_Records {
 	 * @param \WPML_WP_User_Query_Factory $user_query_factory
 	 * @param \WP_Roles                   $wp_roles
 	 */
-	public function __construct( wpdb $wpdb, WPML_WP_User_Query_Factory $user_query_factory, WP_Roles $wp_roles ) {
+	public function __construct(
+		wpdb $wpdb,
+		WPML_WP_User_Query_Factory $user_query_factory,
+		WP_Roles $wp_roles,
+		\WPML\TranslationRoles\Service\AdministratorRoleManager $administratorRoleManager
+	) {
 		$this->wpdb               = $wpdb;
 		$this->user_query_factory = $user_query_factory;
 		$this->wp_roles           = $wp_roles;
+		$this->administratorRoleManager = $administratorRoleManager;
+
+		add_action( 'user_register', [ $this, 'on_user_register' ], 10, 2 );
+		add_filter( 'update_user_metadata', [ $this, 'on_user_meta_update' ], 10, 4 );
+		$this->prepare_hooks();
 	}
 
 	public function has_users_with_capability() {
@@ -116,13 +129,8 @@ abstract class WPML_Translation_Roles_Records {
 	private function get_records( $compare, $search = '', $limit = -1 ) {
 		$search = trim( $search );
 
-		$cache_key = md5( (string) wp_json_encode( [ get_class( $this ), $compare, $search, $limit ] ) );
-		$cache     = wpml_get_cache( self::CACHE_GROUP );
-		$found     = false;
-		$results   = $cache->get( $cache_key, $found );
-		if ( $found ) {
-			return $results;
-		}
+		// Only use the cache when we are looking for all users with the capability.
+		$useCache = $compare === self::USERS_WITH_CAPABILITY && '' === $search && -1 === $limit;
 
 		$preparedUserQuery = $this->wpdb->prepare(
 			"SELECT u.id FROM {$this->wpdb->users} u INNER JOIN {$this->wpdb->usermeta} c ON c.user_id=u.ID AND CAST(c.meta_key AS BINARY)=%s AND c.meta_value {$compare} %s",
@@ -141,6 +149,16 @@ abstract class WPML_Translation_Roles_Records {
 			$preparedUserQuery .= $this->wpdb->prepare( " AND (u.user_login LIKE %s OR u.user_nicename LIKE %s OR u.user_email LIKE %s)", "%{$search}%", "%{$search}%", "%{$search}%" );
 		}
 
+		$cache      = $this->get_cache();
+		$validCache = is_array( $cache );
+		if ( $validCache && $useCache ) {
+			if ( count( $cache ) === 0 ) {
+				// No translator OR translation manager registered on the site.
+				return [];
+			}
+			$preparedUserQuery .= ' AND u.id IN(' . implode( ',', array_keys( $cache ) ) . ')';
+		}
+
 		$preparedUserQuery .= ' ORDER BY user_login ASC';
 
 		if ( $limit > 0 ) {
@@ -155,12 +173,15 @@ abstract class WPML_Translation_Roles_Records {
 			$users            = wpml_array_unique( $users_with_dupes, SORT_REGULAR );
 		}
 
-		$results = array();
+		$results     = array();
+		$translators = array();
 		foreach ( $users as $user_id ) {
 			$user_data = get_userdata( $user_id );
 			if ( $user_data ) {
 				$language_pair_records = new WPML_Language_Pair_Records( $this->wpdb, new WPML_Language_Records( $this->wpdb ) );
 				$language_pairs        = $language_pair_records->get( $user_id );
+
+				$translators[ $user_data->ID ] = $user_data->user_login;
 
 				$result    = (object) array(
 					'ID'             => $user_data->ID,
@@ -168,16 +189,130 @@ abstract class WPML_Translation_Roles_Records {
 					'user_login'     => $user_data->user_login,
 					'user_email'     => $user_data->user_email,
 					'display_name'   => $user_data->display_name,
+					'user_nicename'  => $user_data->user_nicename,
 					'language_pairs' => $language_pairs,
-					'roles'          => $user_data->roles
+					'roles'          => $user_data->roles,
 				);
 				$results[] = $result;
 			}
 		}
 
-		$cache->set( $cache_key, $results );
+		if ( ! $validCache && $useCache ) {
+			// Only cache full list of translators.
+			$this->update_cache( $translators );
+		}
 
 		return $results;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function get_cache_key() {
+		return self::CACHE_PREFIX . $this->get_capability();
+	}
+
+	/**
+	 * @return array|false
+	 */
+	private function get_cache() {
+		return get_option( $this->get_cache_key(), false );
+	}
+
+	/**
+	 * @param array $translators
+	 * @return void
+	 */
+	private function update_cache( $translators ) {
+		update_option( $this->get_cache_key(), $translators );
+	}
+
+	/**
+	 * @return void
+	 */
+	private function delete_cache() {
+		delete_option( $this->get_cache_key() );
+	}
+
+	/**
+	 * @param int $user_id
+	 *
+	 * @return void
+	 */
+	public function on_translator_save( $user_id = 0 ) {
+		$user = $user_id ? get_userdata( $user_id ) : false;
+		if ( ! $user ) {
+			return;
+		}
+
+		$translators = $this->get_cache();
+		if ( is_array( $translators ) && array_key_exists( $user->ID, $translators ) ) {
+			return;
+		}
+
+		$translators[ $user->ID ] = $user->user_login;
+		$this->update_cache( $translators );
+	}
+
+	/**
+	 * @param int   $id
+	 * @param array $data
+	 *
+	 * @return void
+	 */
+	public function on_user_register( $id, $data = [] ) {
+		if ( ! $id ) {
+			return;
+		}
+
+		if ( ! is_array( $data ) || ! array_key_exists( 'user_login', $data ) ) {
+			// Pre WP 5.8.0.
+			$user = get_userdata( $id );
+			if ( ! $user ) {
+				return;
+			}
+
+			$data = [
+				'user_login' => $user->user_login,
+			];
+		}
+
+		$translators = $this->get_cache();
+		if ( ! is_array( $translators ) ) {
+			return;
+		}
+
+		foreach ( $translators as $cached_id => $cached_login ) {
+			if (
+				$cached_id === $id && $cached_login !== $data['user_login'] ||
+				$cached_id !== $id && $cached_login === $data['user_login']
+			) {
+				// Import of an user, which has the same id OR login as an translator.
+				// Nothing unusual on import when there are already existing users.
+				$this->delete_cache();
+				break;
+			}
+		}
+	}
+
+	/**
+	 * @param bool   $check       Whether to allow updating metadata.
+	 * @param int    $user_id     Id of the user for which metadata is being updated.
+	 * @param string $meta_key    Metadata key.
+	 * @param mixed  $meta_value  Metadata value. Serialized arrays will be unserialized.
+	 *
+	 * @return bool
+	 */
+	public function on_user_meta_update( $check, $user_id, $meta_key, $meta_value ) {
+		if ( $this->wpdb->prefix . 'capabilities' !== $meta_key ) {
+			return $check;
+		}
+
+		if ( is_array( $meta_value ) && array_key_exists( $this->get_capability(), $meta_value ) ) {
+			$this->on_translator_save( $user_id );
+		}
+
+		return $check;
 	}
 
 	/**
@@ -264,6 +399,11 @@ abstract class WPML_Translation_Roles_Records {
 
 		return (bool) $this->wpdb->get_var( $sql );
 	}
+
+	/**
+	 * @return void
+	 */
+	abstract protected function prepare_hooks();
 
 	/**
 	 * @return string

@@ -4,7 +4,9 @@ use WPML\FP\Logic;
 
 abstract class WPML_Custom_Field_Setting extends WPML_TM_User {
 
-	/** @var  string $index */
+	const SETTINGS_INDEX_TRANSLATE_IDS = 'translate_ids';
+
+	/** @var string $index */
 	private $index;
 
 	/**
@@ -127,6 +129,27 @@ abstract class WPML_Custom_Field_Setting extends WPML_TM_User {
 			'state'      => $state,
 			'sub_fields' => $sub_fields,
 		);
+	}
+
+	public function clear_from_translate_ids() {
+		unset( $this->tm_instance->settings[ $this->get_array_setting_index( self::SETTINGS_INDEX_TRANSLATE_IDS ) ][ $this->index ] );
+	}
+
+	/**
+	 * @param string $type "post-ids" or "taxonomy-ids".
+	 * @param string $slug e.g. "page", "category", ...
+	 * @param string $path The path to the field nested value, eg. 'subkey_1>subkey_1_1>...', supports '*' wildcards. Empty means that the field itself holds the translatable IDs.
+	 */
+	public function set_field_translatable_ids( $type, $slug, $path = '' ) {
+		$settings_index       = $this->get_array_setting_index( self::SETTINGS_INDEX_TRANSLATE_IDS );
+		$field_index          = $this->tm_instance->settings[ $settings_index ][ $this->index ] ?? [];
+		$field_index[ $path ] = [
+			'type' => $type,
+			'slug' => $slug,
+			'path' => $path,
+		];
+
+		$this->tm_instance->settings[ $settings_index ][ $this->index ] = $field_index;
 	}
 
 	public function is_translate_link_target() {

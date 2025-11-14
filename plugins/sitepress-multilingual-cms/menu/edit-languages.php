@@ -81,7 +81,7 @@ class SitePress_EditLanguages {
 			'edit-languages',
 			ICL_PLUGIN_URL . '/res/js/languages/edit-languages.js',
 			[ 'jquery', 'sitepress-scripts' ],
-			ICL_SITEPRESS_VERSION,
+			ICL_SITEPRESS_SCRIPT_VERSION,
 			true
 		);
 
@@ -212,6 +212,7 @@ class SitePress_EditLanguages {
 	function edit_table() {
 		?>
 		<form enctype="multipart/form-data" action="<?php echo admin_url( 'admin.php?page=' . WPML_PLUGIN_FOLDER . '/menu/languages.php&amp;trop=1' ); ?>" method="post" id="icl_edit_languages_form">
+			<div id="icl_edit_languages_table__wrapper">
 			<input type="hidden" name="icl_edit_languages_action" value="update"/>
 			<input type="hidden" name="icl_edit_languages_ignore_add" id="icl_edit_languages_ignore_add" value="<?php echo ( $this->is_new_data_and_invalid() ) ? 'false' : 'true'; ?>"/>
 			<?php wp_nonce_field( 'icl_edit_languages' ); ?>
@@ -283,20 +284,21 @@ class SitePress_EditLanguages {
 				?>
 				</tbody>
 			</table>
+			</div>
 			<span class="icl_error_text icl_edit_languages_show"
 				  style="display: none; margin:10px;"><p><?php esc_html_e( 'Please note: language codes cannot be changed after adding languages. Make sure you enter the correct code.', 'sitepress' ); ?></p></span>
 			<p class="submit"><a href="admin.php?page=<?php echo WPML_PLUGIN_FOLDER; ?>/menu/languages.php">&laquo;&nbsp;<?php esc_html_e( 'Back to languages', 'sitepress' ); ?></a></p>
 
 			<p class="submit alignright">
 				<input type="button" name="icl_edit_languages_add_language_button" id="icl_edit_languages_add_language_button"
-					   value="<?php esc_html_e( 'Add Language', 'sitepress' ); ?>" class="button-secondary"
+					   value="<?php esc_html_e( 'Add Language', 'sitepress' ); ?>" class="button-secondary wpml-button base-btn wpml-button--outlined"
 												<?php
 												if ( $this->is_new_data_and_invalid() ) {
 													?>
 							 style="display:none;"<?php } ?> />
 				&nbsp;
 				<input type="button" name="icl_edit_languages_cancel_button" id="icl_edit_languages_cancel_button"
-					   value="<?php esc_html_e( 'Cancel', 'sitepress' ); ?>" class="button-secondary icl_edit_languages_show"
+					   value="<?php esc_html_e( 'Cancel', 'sitepress' ); ?>" class="button-secondary wpml-button base-btn gray-light-btn icl_edit_languages_show"
 												<?php
 												if ( ! $this->validation_failed ) {
 													?>
@@ -415,12 +417,12 @@ class SitePress_EditLanguages {
 					?>
 					<div style="float:left;">
 						<ul>
-							<li>
+							<li class="wpml-custom-flag-wrapper">
 								<input type="radio"
 									   id="wpm-edit-languages-<?php echo esc_attr( $lang['id'] ); ?>-flag-upload"
 									   name="icl_edit_languages[<?php echo esc_attr( $lang['id'] ); ?>][flag_upload]"
 									   value="true"
-									   class="radio icl_edit_languages_use_upload"
+									   class="wpml-radio-native icl_edit_languages_use_upload"
 									<?php
 									if ( esc_attr( $lang['from_template'] ) ) {
 										?>
@@ -448,7 +450,13 @@ class SitePress_EditLanguages {
 										   name="icl_edit_languages[<?php echo esc_attr( $lang['id'] ); ?>][flag]"
 										   value="<?php echo esc_attr( $lang['flag'] ); ?>"
 										   class="icl_edit_languages_flag_enter_field" style="width: auto;"/>
-									<input type="file" name="icl_edit_languages[<?php echo esc_attr( $lang['id'] ); ?>][flag_file]" class="icl_edit_languages_flag_upload_field file" style="width: 200px;"/>
+									<input
+										type="file"
+										name="icl_edit_languages[<?php echo esc_attr( $lang['id'] ); ?>][flag_file]"
+										class="icl_edit_languages_flag_upload_field file"
+										style="width: fit-content;"
+										aria-label="<?php esc_attr_e( 'Upload custom flag', 'sitepress' ); ?>""
+									/>
 									<br/>
 									<?php echo sprintf( esc_html__( '(allowed: %s)', 'sitepress' ), implode( ', ', $allowed_types ) ); ?>
 								</div>
@@ -460,12 +468,13 @@ class SitePress_EditLanguages {
 										<input type="radio"
 											   name="icl_edit_languages[<?php echo esc_attr( $lang['id'] ); ?>][flag_upload]"
 											   value="false"
-											   class="radio icl_edit_languages_use_field"
+											   class="wpml-radio-native icl_edit_languages_use_field"
 											   <?php
 												if ( ! $lang['from_template'] ) {
 													?>
 													 checked="checked"<?php } ?> />
 										&nbsp;<img
+											role="presentation"
 											src="<?php echo WPML_Flags::get_wpml_flags_url() . $lang['code'] . '.' . WPML_Flags::get_wpml_flag_image_ext(); ?>"
 											alt="<?php echo esc_attr( $lang ['code'] ); ?>"/>
 										<?php esc_html_e( 'WPML flag', 'sitepress' ); ?>
@@ -479,7 +488,7 @@ class SitePress_EditLanguages {
                                         <input type="radio"
                                                name="icl_edit_languages[<?php echo esc_attr( $lang['id'] ); ?>][flag_upload]"
                                                value="false"
-                                               class="radio icl_edit_languages_use_field"
+                                               class="wpml-radio-native icl_edit_languages_use_field"
 											<?php
 											if ( ! $lang['from_template'] ) {
 												?>
@@ -793,6 +802,8 @@ class SitePress_EditLanguages {
 		$sitepress->get_language_name_cache()->clear();
 		$sitepress->clear_flags_cache();
 		delete_option( '_icl_cache' );
+
+		do_action( 'wpml_update_active_languages' );
 
 		// Unset ADD fields.
 		if ( $this->is_new_data_and_valid() ) {

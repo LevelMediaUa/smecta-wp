@@ -13,11 +13,11 @@ msgid ""
 "ones."
 msgstr ""
 
-#: src/js/wpmlLanguageSettings/DefaultFlagsFormat/Section.js:41
+#: src/js/wpmlLanguageSettings/DefaultFlagsFormat/Section.js:46
 msgid "%s format"
 msgstr ""
 
-#: src/js/wpmlLanguageSettings/DefaultFlagsFormat/Section.js:56
+#: src/js/wpmlLanguageSettings/DefaultFlagsFormat/Section.js:63
 msgid "Save"
 msgstr ""
 

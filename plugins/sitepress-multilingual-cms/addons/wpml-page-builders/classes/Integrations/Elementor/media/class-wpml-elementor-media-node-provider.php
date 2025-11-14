@@ -4,13 +4,13 @@ use WPML\PB\Elementor\Media\Modules\Gallery;
 
 class WPML_Elementor_Media_Node_Provider {
 
-	/** @var WPML_Page_Builders_Media_Translate $media_translate */
+	/** @var IWPML_PB_Media_Find_And_Translate $media_translate */
 	private $media_translate;
 
 	/** @var WPML_Elementor_Media_Node[] */
 	private $nodes = array();
 
-	public function __construct( WPML_Page_Builders_Media_Translate $media_translate ) {
+	public function __construct( IWPML_PB_Media_Find_And_Translate $media_translate ) {
 		$this->media_translate = $media_translate;
 	}
 
@@ -77,6 +77,19 @@ class WPML_Elementor_Media_Node_Provider {
 				case 'hotspot':
 					$node = new \WPML\PB\Elementor\Media\Modules\Hotspot( $this->media_translate );
 					break;
+				case 'link-in-bio':
+				case 'link-in-bio-var-2':
+				case 'link-in-bio-var-3':
+				case 'link-in-bio-var-4':
+				case 'link-in-bio-var-5':
+				case 'link-in-bio-var-6':
+				case 'link-in-bio-var-7':
+					$node = new \WPML\PB\Elementor\Media\Modules\LinkInBio( $this->media_translate );
+					break;
+
+				case 'contact-buttons':
+					$node = new \WPML\PB\Elementor\Media\Modules\ContactButtons( $this->media_translate );
+					break;
 
 				default:
 					$node = null;
@@ -86,5 +99,12 @@ class WPML_Elementor_Media_Node_Provider {
 		}
 
 		return $this->nodes[ $type ];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function get_media() {
+		return $this->media_translate->get_used_media_in_post();
 	}
 }

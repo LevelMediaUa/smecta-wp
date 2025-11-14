@@ -15,11 +15,15 @@ msgstr ""
 msgid "to:"
 msgstr ""
 
+#: src/js/components/language/LanguagePairs.js:93
+msgid "Select %s"
+msgstr ""
+
 #: src/js/components/language/SelectLanguagePairs.js:39
 msgid "Set language pair(s) for Translator %s:"
 msgstr ""
 
-#: src/js/components/language/SelectLanguagePairs.js:64
+#: src/js/components/language/SelectLanguagePairs.js:69
 msgid "+ Add more language pairs for this translator"
 msgstr ""
 
@@ -35,8 +39,12 @@ msgstr ""
 msgid "Role"
 msgstr ""
 
-#: src/js/components/roles/CreateUser.js:137
+#: src/js/components/roles/CreateUser.js:138
 msgid "(required)"
+msgstr ""
+
+#: src/js/components/roles/CreateUser.js:214
+msgid "Select a role for the user"
 msgstr ""
 
 #: src/js/components/roles/CreateUser.js:46
@@ -65,6 +73,17 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
+#: src/js/components/translation-managers/AddManagerDialog.js:117
+#: src/js/components/translators/AddTranslatorDialog.js:151
+#: src/js/components/translators/EditLanguagesDialog.js:73
+#: src/js/setup/components/Steps/AddLanguagesModal.js:496
+msgid "Cancel"
+msgstr ""
+
+#: src/js/components/translation-managers/AddManagerDialog.js:122
+msgid "Add Translation Manager"
+msgstr ""
+
 #: src/js/components/translation-managers/AddManagerDialog.js:47
 msgid "user"
 msgstr ""
@@ -73,38 +92,35 @@ msgstr ""
 msgid "Editor"
 msgstr ""
 
-#: src/js/components/translation-managers/AddManagerDialog.js:61
+#: src/js/components/translation-managers/AddManagerDialog.js:71
 msgid "Select an existing %s and set as Translation Manager"
 msgstr ""
 
-#: src/js/components/translation-managers/AddManagerDialog.js:72
+#: src/js/components/translation-managers/AddManagerDialog.js:96
 msgid "Create a new %s and set as Translation Manager"
-msgstr ""
-
-#: src/js/components/translation-managers/AddManagerDialog.js:85
-#: src/js/components/translators/AddTranslatorDialog.js:121
-#: src/js/components/translators/EditLanguagesDialog.js:73
-#: src/js/setup/components/Steps/AddLanguagesModal.js:496
-msgid "Cancel"
-msgstr ""
-
-#: src/js/components/translation-managers/AddManagerDialog.js:90
-msgid "Add Translation Manager"
 msgstr ""
 
 #: src/js/components/translation-managers/ManagerSection.js:27
 msgid "Add a Translation Manager"
 msgstr ""
 
-#: src/js/components/translators/AddTranslatorDialog.js:111
+#: src/js/components/translators/AddTranslatorDialog.js:101
+msgid "Select an existing user and set as Translator"
+msgstr ""
+
+#: src/js/components/translators/AddTranslatorDialog.js:124
+msgid "Create a new user and set as Translator"
+msgstr ""
+
+#: src/js/components/translators/AddTranslatorDialog.js:141
 msgid "Set language pair(s)"
 msgstr ""
 
-#: src/js/components/translators/AddTranslatorDialog.js:126
+#: src/js/components/translators/AddTranslatorDialog.js:156
 msgid "Previous"
 msgstr ""
 
-#: src/js/components/translators/AddTranslatorDialog.js:129
+#: src/js/components/translators/AddTranslatorDialog.js:159
 #: src/js/components/translators/EditLanguagesDialog.js:78
 msgid "Save"
 msgstr ""
@@ -114,29 +130,29 @@ msgstr ""
 msgid "Add a Translator"
 msgstr ""
 
-#: src/js/components/translators/AddTranslatorDialog.js:91
-msgid "Select an existing user and set as Translator"
-msgstr ""
-
-#: src/js/components/translators/AddTranslatorDialog.js:95
-msgid "Create a new user and set as Translator"
-msgstr ""
-
 #: src/js/components/translators/EditLanguagesDialog.js:55
 msgid "Edit language pair(s) for translator"
 msgstr ""
 
-#: src/js/components/translators/TranslatorsTable.js:128
+#: src/js/components/translators/TranslatorsTable.js:136
 #: src/js/setup/components/Steps/AddLanguagesModal.js:346
 msgid "Name"
 msgstr ""
 
-#: src/js/components/translators/TranslatorsTable.js:140
+#: src/js/components/translators/TranslatorsTable.js:148
 msgid "Language Pairs"
 msgstr ""
 
-#: src/js/components/translators/TranslatorsTable.js:144
+#: src/js/components/translators/TranslatorsTable.js:152
 msgid "You can translate to and from all languages"
+msgstr ""
+
+#: src/js/components/translators/TranslatorsTable.js:59
+msgid "Edit language pair(s)"
+msgstr ""
+
+#: src/js/components/translators/TranslatorsTable.js:62
+msgid "Delete language pair(s)"
 msgstr ""
 
 #: src/js/setup/components/Steps/AddLanguages/Flag.js:48
@@ -331,32 +347,32 @@ msgstr ""
 msgid "adding a custom language"
 msgstr ""
 
-#: src/js/setup/components/Steps/Languages.js:102
+#: src/js/setup/components/Steps/Languages.js:110
+msgid "What are the languages of your site?"
+msgstr ""
+
+#: src/js/setup/components/Steps/Languages.js:120
 msgid "Default language"
 msgstr ""
 
-#: src/js/setup/components/Steps/Languages.js:104
+#: src/js/setup/components/Steps/Languages.js:122
 msgid "What is the current language of your website?"
 msgstr ""
 
-#: src/js/setup/components/Steps/Languages.js:115
+#: src/js/setup/components/Steps/Languages.js:133
 msgid "Translation languages"
 msgstr ""
 
-#: src/js/setup/components/Steps/Languages.js:117
+#: src/js/setup/components/Steps/Languages.js:135
 msgid "Which languages do you want to translate your site into?"
 msgstr ""
 
-#: src/js/setup/components/Steps/Languages.js:132
+#: src/js/setup/components/Steps/Languages.js:149
 msgid "If you cannot find languages that you need in the list"
 msgstr ""
 
-#: src/js/setup/components/Steps/Languages.js:133
+#: src/js/setup/components/Steps/Languages.js:150
 msgid "create a custom language"
-msgstr ""
-
-#: src/js/setup/components/Steps/Languages.js:92
-msgid "What are the languages of your site?"
 msgstr ""
 
 #: src/js/translation-roles-ui/components/Managers.js:12

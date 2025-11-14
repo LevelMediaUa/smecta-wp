@@ -85,10 +85,7 @@ class WPML_Canonicals_Hooks {
 	 * Then: We make a redirect to the proper URI that contains the default language code as directory.
 	 */
 	public function redirectArchivePageToDefaultLangDir() {
-		global $wp_query;
-
-		$isValidForRedirect = $wp_query->is_archive() && ! call_user_func( $this->is_current_request_root_callback );
-
+		$isValidForRedirect = is_archive() && ! call_user_func( $this->is_current_request_root_callback );
 		if ( ! $isValidForRedirect ) {
 			return;
 		}
@@ -96,9 +93,21 @@ class WPML_Canonicals_Hooks {
 		$currentUri = $_SERVER['REQUEST_URI'];
 		$lang       = $this->sitepress->get_current_language();
 
+		$home_url        = rtrim( $this->url_converter->get_abs_home(), '/' );
+		$parsed_site_url = wp_parse_url( $home_url );
+
+		if ( isset( $parsed_site_url['path'] ) ) {
+			// Cater for site installed in sub-folder.
+			$path = $parsed_site_url['path'];
+
+			if ( ! empty( $path ) && strpos( $currentUri, $path ) === 0 ) {
+				$currentUri = substr( $currentUri, strlen( $path ) );
+			}
+		}
+
 		if ( 0 !== strpos( $currentUri, '/' . $lang ) ) {
 			$canonicalUri = user_trailingslashit(
-				$this->url_converter->get_abs_home() . '/' . $lang . $currentUri
+				$home_url . '/' . $lang . $currentUri
 			);
 
 			$this->redirectTo( $canonicalUri );

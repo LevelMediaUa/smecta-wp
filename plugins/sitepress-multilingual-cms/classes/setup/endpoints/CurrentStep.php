@@ -20,6 +20,7 @@ class CurrentStep implements IHandler {
 		'languages',
 		'address',
 		'license',
+		'aiTranslation',
 		'translation',
 		self::STEP_TRANSLATION_SETTINGS,
 		self::STEP_HIGH_COSTS_WARNING,

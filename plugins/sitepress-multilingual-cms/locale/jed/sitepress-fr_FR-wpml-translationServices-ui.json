@@ -4,6 +4,7 @@
       "messages": {
          "": {
             "domain": "messages",
+            "plural_forms": "nplurals=2; plural=(n > 1);",
             "lang": "fr_FR"
          },
          "Connect this site to your %s account": [
@@ -13,13 +14,16 @@
             "Erreur"
          ],
          "« Use a different Translation Service": [
-            "« Utiliser un autre service de traduction"
+            "« Utiliser un service de traduction différent"
          ],
          "Authenticate": [
             "Authentifier"
          ],
          "Visit <link_to_service /> to request an API Token. This token allows WPML to connect to <service_name /> to send and receive jobs.": [
-            "Consultez <link_to_service /> pour demander un jeton API. Ce jeton permet à WPML de se connecter à <service_name /> pour envoyer et recevoir des travaux."
+            "Visitez <link_to_service /> pour demander un jeton API. Ce jeton permet à WPML de se connecter à <service_name /> pour envoyer et recevoir des travaux."
+         ],
+         "Search translation services": [
+            "Rechercher des services de traduction"
          ],
          "Search": [
             "Recherche"

@@ -48,7 +48,7 @@ class WPML_TM_Troubleshooting_Clear_TS extends WPML_TM_AJAX_Factory_Obsolete {
 	}
 
 	public function register_resources() {
-		wp_register_script( $this->script_handle, WPML_TM_URL . '/res/js/clear-preferred-ts.js', array( 'jquery', 'jquery-ui-dialog' ), false, true );
+		wp_register_script( $this->script_handle, WPML_TM_URL . '/res/js/clear-preferred-ts.js', array( 'jquery', 'jquery-ui-dialog' ), ICL_SITEPRESS_SCRIPT_VERSION, true );
 	}
 
 	public function load_action() {

@@ -809,8 +809,9 @@ function wpml_is_rest_request() {
 /**
  * @return bool
  */
-function wpml_is_rest_enabled() {
-	return make( \WPML\Core\REST\Status::class )->isEnabled();
+function wpml_is_rest_enabled(bool $useCache = true) {
+	global $wpml_dic;
+	return $wpml_dic->make( WPML\Infrastructure\WordPress\SharedKernel\Server\Application\CheckRestIsEnabled::class )->isEnabled($useCache);
 }
 
 function wpml_is_cli() {
@@ -915,4 +916,9 @@ if ( ! function_exists( 'wpml_get_flag_file_name' ) ) {
 
 		return $file;
 	}
+}
+
+
+function wpml_is_st_loaded(): bool {
+	return defined( 'WPML_ST_VERSION' );
 }

@@ -28,8 +28,20 @@ class WPML_TM_ATE_Models_Job_Create {
 	public $ate_ams_console_url;
 	/** @var int */
 	public $existing_ate_id;
-	/** @var int */
-	public $wpml_chars_count;
+
+	/* Fields for Words to Translate */
+	/** @var ?int */
+	public $wpml_words_to_translate_count;
+	/** @var ?int */
+	public $wpml_automatic_translation_costs;
+	/** @var int[] This is only for ATE. */
+	public $ate_previous_job_ids;
+
+	/** @var bool */
+	public $apply_memory;
+
+	/** @var WPML_TM_ATE_Models_Job_Sender */
+	public $job_sender;
 
 	/**
 	 * WPML_TM_ATE_Models_Job_Create constructor.

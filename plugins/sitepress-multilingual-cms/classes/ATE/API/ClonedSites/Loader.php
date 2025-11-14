@@ -7,10 +7,12 @@ use WPML\FP\Fns;
 use WPML\FP\Lst;
 use WPML\FP\Obj;
 use WPML\LIB\WP\User;
-use WPML\TM\ATE\ClonedSites\Endpoints\GetCredits as ClonedSitesGetCredits;
+use WPML\TM\ATE\ClonedSites\Endpoints\CheckSourceSiteExistence;
+use WPML\TM\ATE\ClonedSites\Endpoints\GetCredits;
 use WPML\TM\ATE\ClonedSites\Endpoints\Copy;
-use WPML\TM\ATE\ClonedSites\Endpoints\Move;
 use WPML\TM\ATE\ClonedSites\Endpoints\CopyWithCredits;
+use WPML\TM\ATE\ClonedSites\Endpoints\EnableSecondaryDomain;
+use WPML\TM\ATE\ClonedSites\Endpoints\Move;
 use WPML\TM\ATE\ClonedSites\Lock;
 use WPML\TM\Templates\Notices\AteLocked;
 use WPML\LIB\WP\Hooks;
@@ -44,7 +46,7 @@ class Loader implements \IWPML_Backend_Action, \IWPML_DIC_Action {
 		Hooks::onAction( 'admin_enqueue_scripts' )
 		     ->then( function () {
 			     if ( $this->shouldRender() ) {
-				     $fn = Resources::enqueueApp( 'ate/clonedSites' );
+				     $fn = Resources::enqueueApp( 'ate-cloned-sites' );
 				     $fn( $this->getData() );
 			     }
 		     } );
@@ -54,17 +56,18 @@ class Loader implements \IWPML_Backend_Action, \IWPML_DIC_Action {
 		$lockData = $this->lock->getLockData();
 
 		$urlCurrentlyRegisteredInAMS = Obj::prop( 'urlCurrentlyRegisteredInAMS', $lockData );
-		$urlUsedToMakeRequest        = Obj::prop( 'urlUsedToMakeRequest', $lockData );
 
 		return [
 			'name' => 'ate_cloned_sites',
 			'data' => [
 				'hasRightToHandle' => User::isAdministrator(),
-				'endpoints'        => [
-					'move'                  => Move::class,
-					'copy'                  => Copy::class,
-					'copyWithCredits'       => CopyWithCredits::class,
-					'clonedSitesGetCredits' => ClonedSitesGetCredits::class,
+				'endpoints' => [
+					'move'                     => Move::class,
+					'copy'                     => Copy::class,
+					'copyWithCredits'          => CopyWithCredits::class,
+					'clonedSitesGetCredits'    => GetCredits::class,
+					'checkSourceSiteExistence' => CheckSourceSiteExistence::class,
+					'enableSecondaryDomain'    => EnableSecondaryDomain::class,
 				],
 				'urls'             => [
 					'toolsOnOldSite' => $urlCurrentlyRegisteredInAMS . '/wp-admin/' . UIPage::getTMATE() . '&widget_action=open_sites&force_code=1',
@@ -76,7 +79,7 @@ class Loader implements \IWPML_Backend_Action, \IWPML_DIC_Action {
 					] ),
 					'urlCurrentlyRegisteredInAMS'     => $urlCurrentlyRegisteredInAMS,
 					'urlUsedToMakeRequest'            => Obj::prop( 'urlUsedToMakeRequest', $lockData ),
-					'isOriginalSiteMovedToAnotherURL' => $lockData['identicalUrlBeforeMovement'],
+					'isOriginalSiteMovedToAnotherURL' => $lockData['identicalUrlBeforeMovement'],					
 				],
 			],
 		];

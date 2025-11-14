@@ -4,7 +4,8 @@
       "messages": {
          "": {
             "domain": "messages",
-            "lang": "en"
+            "plural_forms": "nplurals=1; plural=0;",
+            "lang": "vi_VN"
          },
          "But...": [
             "Nhưng..."

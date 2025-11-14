@@ -4,6 +4,7 @@
       "messages": {
          "": {
             "domain": "messages",
+            "plural_forms": "nplurals=2; plural=(n != 1);",
             "lang": "es_ES"
          },
          "Advanced": [
@@ -23,6 +24,12 @@
          ],
          "Color": [
             "Color"
+         ],
+         "px": [
+            "px"
+         ],
+         "%": [
+            "%"
          ],
          "Dimensions": [
             "Dimensiones"

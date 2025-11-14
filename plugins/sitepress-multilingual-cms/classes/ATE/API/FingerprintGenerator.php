@@ -21,13 +21,13 @@ class FingerprintGenerator {
 
 	public function getSiteFingerprint() {
 		$siteFingerprint = [
-			'wp_url' => $this->getSiteUrl(),
+			'wp_url' => $this->getClonedSiteUrl(),
 		];
 
 		return json_encode( $siteFingerprint );
 	}
 
-	protected function getSiteUrl() {
+	public function getClonedSiteUrl() {
 
 		$siteUrl = defined( 'ATE_CLONED_SITE_URL' )
 			? ATE_CLONED_SITE_URL

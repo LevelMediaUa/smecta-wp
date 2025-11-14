@@ -40,6 +40,7 @@ class WPML_LS_Model_Build extends WPML_SP_User {
 		'backward_compatibility' => 'array',
 		'flag_width'             => 'int',
 		'flag_height'            => 'int',
+		'menu_item_label'        => 'string',
 	];
 
 	/**
@@ -190,13 +191,26 @@ class WPML_LS_Model_Build extends WPML_SP_User {
 					$ret[ $code ]['flag_alt']   = ( $display_name || $display_native ) ? '' : $data['translated_name'];
 				}
 
+				$language_name = $data['translated_name'];
+
 				if ( $display_native ) {
 					$ret[ $code ]['native_name'] = $data['native_name'];
+					$language_name = $data['native_name'];
 				}
 
 				if ( $display_name ) {
 					$ret[ $code ]['display_name'] = $data['translated_name'];
 				}
+
+				if ( $display_name && $display_native ) {
+					$language_name = $data['translated_name'] . '(' . $data['native_name'] . ')';
+				}
+
+				// Add menu item label for screen readers
+				$ret[ $code ]['menu_item_label'] = sprintf( 
+					__( 'Switch to %s', 'sitepress' ), 
+					$language_name 
+				);
 
 				if ( $is_current_language ) {
 					$ret[ $code ]['is_current'] = true;

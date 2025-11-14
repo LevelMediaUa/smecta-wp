@@ -1,5 +1,6 @@
 <?php
 
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.LowLevelTranslationFunction
 class WPML_Page_Builders_Media_Shortcodes_Update implements IWPML_PB_Media_Update {
 
 	/** @var WPML_Translation_Element_Factory $element_factory */
@@ -8,13 +9,13 @@ class WPML_Page_Builders_Media_Shortcodes_Update implements IWPML_PB_Media_Updat
 	/** @var WPML_Page_Builders_Media_Shortcodes $media_shortcodes*/
 	private $media_shortcodes;
 
-	/** @var WPML_Page_Builders_Media_Usage $media_usage */
+	/** @var WPML_Page_Builders_Media_Usage|null $media_usage */
 	private $media_usage;
 
 	public function __construct(
 		WPML_Translation_Element_Factory $element_factory,
 		WPML_Page_Builders_Media_Shortcodes $media_shortcodes,
-		WPML_Page_Builders_Media_Usage $media_usage
+		WPML_Page_Builders_Media_Usage $media_usage = null
 	) {
 		$this->element_factory  = $element_factory;
 		$this->media_shortcodes = $media_shortcodes;
@@ -39,7 +40,9 @@ class WPML_Page_Builders_Media_Shortcodes_Update implements IWPML_PB_Media_Updat
 			->set_source_lang( $element->get_source_language_code() )
 			->translate( $post->post_content );
 
-		$this->media_usage->update( $element->get_source_element()->get_id() );
+		if ( $this->media_usage ) {
+			$this->media_usage->update( $element->get_source_element()->get_id() );
+		}
 
 		/**
 		 * The function wp_update_post() can modify post tag.
@@ -57,5 +60,27 @@ class WPML_Page_Builders_Media_Shortcodes_Update implements IWPML_PB_Media_Updat
 		kses_remove_filters();
 		wpml_update_escaped_post( $postarr );
 		kses_init();
+	}
+
+	/**
+	 * @param WP_Post $post
+	 */
+	public function find_media( $post ) {
+		if ( ! $this->media_shortcodes->has_media_shortcode( $post->post_content ) ) {
+			return;
+		}
+
+		$element = $this->element_factory->create_post( $post->ID );
+
+		$this->media_shortcodes->set_target_lang( $element->get_language_code() )
+			->set_source_lang( $element->get_language_code() )
+			->translate( $post->post_content );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function get_media() {
+		return $this->media_shortcodes->get_media();
 	}
 }

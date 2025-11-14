@@ -13,7 +13,7 @@ class WPML_Non_Embedded_Pdf_Parser extends WPML_Media_Element_Parser {
 	/**
 	 * @var string
 	 */
-	private static $non_embedded_pdf_expression = '/wp:file.*class="wp-block-file".*(href=".*\.pdf")>.*\/wp:file/s';
+	private static $non_embedded_pdf_expression = '/wp:file.*?class="[^"]*\bwp-block-file\b[^"]*".*?<a[^>]*?(href="[^"]+?\.pdf")[^>]*?>.*?\/wp:file/s';
 
 	public function getMediaElements() {
 		return $this->getFromTags();

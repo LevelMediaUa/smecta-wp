@@ -3,6 +3,7 @@
 use \WPML\FP\Obj;
 use WPML\TM\API\Jobs;
 use WPML\TM\Menu\TranslationQueue\PostTypeFilters;
+use WPML\Translation\TranslationElements\FieldCompression;
 
 /**
  * Class WPML_Translation_Job_Factory
@@ -343,8 +344,7 @@ class WPML_Translation_Job_Factory extends WPML_Abstract_Job_Collection {
 				 {$prefix_select}"
 		                                             . ( $only_ids === false ? ',' . $this->get_job_select() : '' );
 
-		return "SELECT SQL_CALC_FOUND_ROWS
-					{$cols}
+		return "SELECT {$cols}
                 FROM " . $this->get_table_join() . "
                 {$prefix_posts_join}
                 LEFT JOIN {$wpdb->users} u
@@ -410,7 +410,9 @@ class WPML_Translation_Job_Factory extends WPML_Abstract_Job_Collection {
 				{$icl_translate_job_alias}.completed_date,
 				{$icl_translate_job_alias}.editor,
 				{$icl_translate_job_alias}.editor_job_id,
-				{$icl_translate_job_alias}.automatic";
+				{$icl_translate_job_alias}.automatic,
+				{$icl_translate_job_alias}.wpml_words_to_translate_count,
+				{$icl_translate_job_alias}.wpml_automatic_translation_costs";
 	}
 
 	private function add_job_elements( $job, $include_non_translatable_elements ) {
@@ -423,6 +425,11 @@ class WPML_Translation_Job_Factory extends WPML_Abstract_Job_Collection {
 						WHERE job_id = %d {$jelq}
 						ORDER BY tid ASC";
 		$elements = $wpdb->get_results( $wpdb->prepare( $query, $job->job_id ) );
+
+		foreach ( $elements as $element ) {
+			$element->field_data            = FieldCompression::decompress( $element->field_data, true );
+			$element->field_data_translated = FieldCompression::decompress( $element->field_data_translated, true );
+		}
 
 		// allow adding custom elements
 		$job->elements = apply_filters( 'icl_job_elements', $elements, $job->original_doc_id, $job->job_id );

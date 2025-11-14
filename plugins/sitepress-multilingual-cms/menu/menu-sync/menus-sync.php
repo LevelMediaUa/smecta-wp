@@ -50,7 +50,9 @@ foreach ( $active_languages as $code => $lang ) {
 		<table id="icl_msync_confirm" class="widefat icl_msync">
 		<thead>
 		<tr>
-			<th scope="row" class="menu-check-all"><input type="checkbox"/></th>
+			<th scope="row" class="menu-check-all">
+				<input aria-label="<?php esc_html_e('Select all items', 'sitepress'); ?>" class="wpml-checkbox-native" type="checkbox"/>
+			</th>
 			<th><?php esc_html_e( 'Language', 'sitepress' ); ?></th>
 			<th><?php esc_html_e( 'Action', 'sitepress' ); ?></th>
 		</tr>
@@ -84,6 +86,8 @@ foreach ( $active_languages as $code => $lang ) {
 						<tr>
 							<th scope="row" class="check-column">
 								<input type="checkbox"
+									   aria-label="<?php esc_attr_e( 'Select row', 'sitepress' ); ?>"
+									   class="wpml-checkbox-native"
 									   name="sync[menu_translation][<?php echo esc_attr( $menu_id ); ?>][<?php echo esc_attr( $language ); ?>]"
 									   value="<?php echo esc_attr( $name ); ?>"/>
 							</th>
@@ -121,13 +125,13 @@ foreach ( $active_languages as $code => $lang ) {
 			}
 			?>
 			<input id="icl_msync_submit"
-				   class="button-primary"
+				   class="button-primary wpml-button base-btn"
 				   type="button"
 				   value="<?php esc_attr_e( 'Apply changes', 'sitepress' ); ?>"
 				   data-message="<?php esc_attr_e( 'Syncing menus %1 of %2', 'sitepress' ); ?>"
 				   data-message-complete="<?php esc_attr_e( 'The selected menus have been synchonized.', 'sitepress' ); ?>"
 				<?php echo $icl_menu_sync_submit_disabled; ?> />&nbsp;
-			<input id="icl_msync_cancel" class="button-secondary" type="button" value="<?php _e( 'Cancel', 'sitepress' ); ?>"/>
+			<input id="icl_msync_cancel" class="button-secondary wpml-button base-btn wpml-button--outlined" type="button" value="<?php _e( 'Cancel', 'sitepress' ); ?>"/>
 			<span id="icl_msync_message"></span>
 		</p>
 			<?php wp_nonce_field( '_icl_nonce_menu_sync', '_icl_nonce_menu_sync' ); ?>
@@ -179,10 +183,14 @@ foreach ( $active_languages as $code => $lang ) {
 										$need_sync++;
 										?>
 										<input type="text" class="icl_msync_add"
+											   aria-label="<?php echo sprintf(esc_attr__( 'Menu translation in %s' , 'sitepress' ), $l['display_name']); ?>"
+											   aria-describedby="input_desc_<?php echo esc_attr($l['code']); ?>"
 											   name="sync[menu_translations][<?php echo esc_attr( $menu_id ); ?>][<?php echo esc_attr( $l['code'] ); ?>]"
 											   value="<?php echo esc_attr( $menu['name'] ) . ' - ' . esc_attr( $l['display_name'] ); ?>"
 										/>
-										<small><?php esc_html_e( 'Auto-generated title. Click to edit.', 'sitepress' ); ?></small>
+										<small id="input_desc_<?php echo esc_attr($l['code']); ?>">
+											<?php esc_html_e( 'Auto-generated title. Click to edit.', 'sitepress' ); ?>
+										</small>
 										<input type="hidden" value=""
 											   name="<?php echo $input_name; ?>"
 										/>
@@ -211,7 +219,7 @@ foreach ( $active_languages as $code => $lang ) {
 				<?php
 				if ( $need_sync ) {
 					?>
-					<input id="icl_msync_sync" type="submit" class="button-primary"
+					<input id="icl_msync_sync" type="submit" class="button-primary wpml-button base-btn"
 						   value="<?php esc_attr_e( 'Sync', 'sitepress' ); ?>"
 						<?php disabled( ! $need_sync ); ?>
 					/>
@@ -239,7 +247,7 @@ foreach ( $active_languages as $code => $lang ) {
 					<?php
 				} else {
 					?>
-					<input id="icl_msync_sync" type="submit" class="button-primary"
+					<input id="icl_msync_sync" type="submit" class="button-primary wpml-button base-btn"
 						   value="<?php esc_attr_e( 'Nothing Sync', 'sitepress' ); ?>"<?php disabled( ! $need_sync ); ?>
 					/>
 					<?php

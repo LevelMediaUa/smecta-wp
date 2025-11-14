@@ -108,7 +108,9 @@ jQuery(function () {
 		}
 	);
 
-	function icl_repair_broken_translations () {
+	function icl_repair_broken_translations (rows_fixed) {
+    var rows_fixed = rows_fixed || 0;
+    var rows_left_msg = jQuery('#icl_fix_post_types_posts_left_msg');
 		jQuery.ajax(
 			{
 				url: ajaxurl,
@@ -117,7 +119,16 @@ jQuery(function () {
 					icl_nonce: troubleshooting_strings.brokenTypeNonce,
 				},
 				success: function (response) {
-					var rows_fixed = response.data;
+					var new_rows_fixed= parseInt(response.data.rowsFixed, 10);
+          var rows_left= parseInt(response.data.rowsLeft, 10);
+          rows_fixed += new_rows_fixed;
+          if (rows_left > 0) {
+            rows_left_msg.css('display', 'inline-block').find('span').text(rows_left);
+            icl_repair_broken_translations(rows_fixed);
+            return;
+          }
+
+          rows_left_msg.css('display', 'none');
 					fix_post_types_and_source_langs_button.prop('disabled', false);
 					fix_post_types_and_source_langs_button.next().fadeOut();
 					var text = '';

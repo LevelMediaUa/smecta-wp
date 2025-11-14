@@ -13,5 +13,9 @@
             'methods' => 'GET',
             'callback' => [new \Next\Controllers\PostsController(), 'related'],
         ]);
+        register_rest_route(API_DOMAIN, '/sitemap', [
+            'methods' => 'GET',
+            'callback' => [new \Next\Controllers\SitemapController(), 'index'],
+        ]);
     });
 

@@ -3,6 +3,7 @@
 require_once WPML_TM_PATH . '/inc/translation-jobs/jobs/wpml-translation-job.class.php';
 
 use WPML\FP\Obj;
+use WPML\Translation\TranslationElements\FieldCompression;
 
 abstract class WPML_Element_Translation_Job extends WPML_Translation_Job {
 
@@ -13,6 +14,14 @@ abstract class WPML_Element_Translation_Job extends WPML_Translation_Job {
 
 	private $original_doc_id = false;
 	private $translation_id  = false;
+
+	/* Fields for Words to Translate */
+	/** @var ?int */
+	public $wpml_words_to_translate_count;
+	/** @var ?int */
+	public $wpml_automatic_translation_costs;
+	/** @var ?int  This is only for ATE. */
+	public $ate_previous_job_id;
 
 	/**
 	 * @param int                               $job_id
@@ -75,7 +84,7 @@ abstract class WPML_Element_Translation_Job extends WPML_Translation_Job {
 	 *                       of the target element to complete
 	 */
 	public function save_to_element( $complete = false ) {
-		global $wpdb, $wpml_post_translations, $wpml_term_translations;
+		global $wpdb, $wpml_term_translations, $wpml_post_translations;
 
 		$wpml_tm_records  = new WPML_TM_Records( $wpdb, $wpml_post_translations, $wpml_term_translations );
 		$save_data_action = new WPML_Save_Translation_Data_Action(
@@ -114,7 +123,7 @@ abstract class WPML_Element_Translation_Job extends WPML_Translation_Job {
 
 		$res = array();
 		foreach ( $fields as $field ) {
-			$res[ $field->field_type ] = base64_decode( $field->field_data );
+			$res[ $field->field_type ] = FieldCompression::decompress( $field->field_data );
 		}
 
 		return $res;
@@ -158,10 +167,11 @@ abstract class WPML_Element_Translation_Job extends WPML_Translation_Job {
 	 * @param WPML_TM_CMS_ID           $cms_id_helper
 	 * @param TranslationManagement    $tm_instance
 	 * @param null|string              $note
+	 * @param array<string,string> | null $tp_batch_info
 	 *
 	 * @return array
 	 */
-	function send_to_tp( $project, $translator_id, &$cms_id_helper, &$tm_instance, $note = null ) {
+	function send_to_tp( $project, $translator_id, &$cms_id_helper, &$tm_instance, $note = null, $tp_batch_info = null ) {
 		global $wpdb;
 
 		$this->maybe_load_basic_data();
@@ -177,7 +187,7 @@ abstract class WPML_Element_Translation_Job extends WPML_Translation_Job {
 		$uuid            = $this->get_uuid();
 
 		try {
-			$tp_job_id = $project->send_to_translation_batch_mode( $file, $title, $cms_id, $url, $source_language, $target_language, $word_count, $translator_id, $note, $uuid );
+			$tp_job_id = $project->send_to_translation_batch_mode( $file, $title, $cms_id, $url, $source_language, $target_language, $word_count, $translator_id, $note, $uuid, $tp_batch_info );
 		} catch ( Exception $err ) {
 			// The translation entry will be removed
 			$project->errors[] = $err;
@@ -196,37 +206,6 @@ abstract class WPML_Element_Translation_Job extends WPML_Translation_Job {
 				)
 			);
 		} else {
-			$previous_state = $wpdb->get_var(
-				$wpdb->prepare(
-					"	SELECT _prevstate
-									FROM {$wpdb->prefix}icl_translation_status
-									WHERE translation_id=%d
-									LIMIT 1",
-					$translation_id
-				)
-			);
-			if ( ! empty( $previous_state ) ) {
-				$previous_state = unserialize( $previous_state );
-				$data           = array(
-					'status'              => $previous_state['status'],
-					'translator_id'       => $previous_state['translator_id'],
-					'needs_update'        => $previous_state['needs_update'],
-					'md5'                 => $previous_state['md5'],
-					'translation_service' => $previous_state['translation_service'],
-					'translation_package' => $previous_state['translation_package'],
-					'timestamp'           => $previous_state['timestamp'],
-					'links_fixed'         => $previous_state['links_fixed'],
-				);
-				$data_where     = array( 'translation_id' => $translation_id );
-				$wpdb->update( $wpdb->prefix . 'icl_translation_status', $data, $data_where );
-			} else {
-				$data       = array(
-					'status'       => ICL_TM_NOT_TRANSLATED,
-					'needs_update' => 0,
-				);
-				$data_where = array( 'translation_id' => $translation_id );
-				$wpdb->update( $wpdb->prefix . 'icl_translation_status', $data, $data_where );
-			}
 			$err = true;
 		}
 

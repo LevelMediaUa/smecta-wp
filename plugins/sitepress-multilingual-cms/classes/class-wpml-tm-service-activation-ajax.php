@@ -83,7 +83,7 @@ class WPML_TM_Service_Activation_AJAX extends WPML_TM_AJAX_Factory_Obsolete {
 	}
 
 	public function register_resources() {
-		wp_register_script( $this->script_handle, WPML_TM_URL . '/res/js/service-activation.js', array( 'jquery', 'jquery-ui-dialog', 'underscore' ), false, true );
+		wp_register_script( $this->script_handle, WPML_TM_URL . '/res/js/service-activation.js', array( 'jquery', 'jquery-ui-dialog', 'underscore' ), ICL_SITEPRESS_SCRIPT_VERSION, true );
 	}
 
 	public function enqueue_resources( $hook_suffix ) {

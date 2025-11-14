@@ -4,6 +4,7 @@
       "messages": {
          "": {
             "domain": "messages",
+            "plural_forms": "nplurals=2; plural=(n > 1);",
             "lang": "fr_FR"
          },
          "Accepted": [
@@ -30,9 +31,6 @@
          "Edit translation": [
             "Modifier la traduction"
          ],
-         "Please wait, applying translation..": [
-            "Veuillez patienter, la traduction est prise en charge..."
-         ],
          "Next review": [
             "Relecture suivante"
          ],
@@ -45,11 +43,14 @@
          "Published!": [
             "Publiée !"
          ],
-         "Someone is already reviewing this translation. Please try again later.": [
-            "Quelqu'un est déjà en train de réviser cette traduction. veuillez réessayer plus tard."
+         "Please wait, applying translation..": [
+            "Veuillez patienter, la traduction est prise en charge..."
          ],
          "There was an error in applying translation.": [
             "Une erreur est survenue lors de la prise en charge de la traduction."
+         ],
+         "Someone is already reviewing this translation. Please try again later.": [
+            "Quelqu'un est déjà en train de réviser cette traduction. veuillez réessayer plus tard."
          ]
       }
    }

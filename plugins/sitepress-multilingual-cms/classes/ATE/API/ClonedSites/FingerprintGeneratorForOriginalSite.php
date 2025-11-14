@@ -20,12 +20,11 @@ class FingerprintGeneratorForOriginalSite extends FingerprintGenerator {
 		$this->lock = $lock;
 	}
 
-	protected function getSiteUrl() {
+	public function getClonedSiteUrl() {
 		if ( Lock::isLocked() ) {
 			return Obj::prop( 'urlCurrentlyRegisteredInAMS', $this->lock->getLockData() );
 		}
 
-		return parent::getSiteUrl();
+		return parent::getClonedSiteUrl();
 	}
-
 }

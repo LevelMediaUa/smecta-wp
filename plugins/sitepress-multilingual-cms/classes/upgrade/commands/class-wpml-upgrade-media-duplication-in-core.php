@@ -1,5 +1,8 @@
 <?php
 
+use function WPML\Container\make;
+use WPML\Core\BackgroundTask\Service\BackgroundTaskService;
+
 class WPML_Upgrade_Media_Duplication_In_Core implements IWPML_Upgrade_Command {
 
 	const FEATURED_AS_TRANSLATED_META_KEY        = '_wpml_featured_image_as_translated';
@@ -299,11 +302,15 @@ class WPML_Upgrade_Media_Duplication_In_Core implements IWPML_Upgrade_Command {
 		global $wpml_language_resolution;
 
 		if ( ! $this->media_attachment_duplication ) {
+
+
 			$this->media_attachment_duplication = new WPML_Media_Attachments_Duplication(
 				$this->sitepress,
 				new WPML_Model_Attachments( $this->sitepress, wpml_get_post_status_helper() ),
 				$this->wpdb,
-				$wpml_language_resolution
+				$wpml_language_resolution,
+				new \WPML\MediaTranslation\PostWithMediaFilesFactory(),
+				make( BackgroundTaskService::class )
 			);
 		}
 

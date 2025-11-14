@@ -38,10 +38,6 @@ msgstr ""
 msgid "Edit translation"
 msgstr ""
 
-#: src/js/translationReview/components/InProgressText.js:8
-msgid "Please wait, applying translation.."
-msgstr ""
-
 #: src/js/translationReview/components/NextTranslationReview.js:22
 msgid "Next review"
 msgstr ""
@@ -58,10 +54,14 @@ msgstr ""
 msgid "Published!"
 msgstr ""
 
-#: src/js/translationReview/hooks/useATESync.js:36
-msgid "Someone is already reviewing this translation. Please try again later."
+#: src/js/updateTranslationFrontend/components/InProgressText.js:8
+msgid "Please wait, applying translation.."
 msgstr ""
 
-#: src/js/translationReview/store.js:29
+#: src/js/updateTranslationFrontend/store.js:29
 msgid "There was an error in applying translation."
+msgstr ""
+
+#: src/js/updateTranslationFrontend/useATESync.js:34
+msgid "Someone is already reviewing this translation. Please try again later."
 msgstr ""

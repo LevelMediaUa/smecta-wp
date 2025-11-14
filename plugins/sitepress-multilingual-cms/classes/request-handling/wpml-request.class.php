@@ -120,7 +120,7 @@ abstract class WPML_Request {
 		$isPostsListPage = false;
 		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 			$uri = urldecode( $_SERVER['REQUEST_URI'] );
-			if ( is_admin() && str_contains( $uri, '/edit.php' ) ) {
+			if ( is_admin() && $uri && strpos( $uri, 'edit.php' ) !== false ) {
 				$isPostsListPage = true;
 			}
 		}

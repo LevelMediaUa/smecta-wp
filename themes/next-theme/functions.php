@@ -94,3 +94,8 @@
     if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
         require_once __DIR__ . '/vendor/autoload.php';
     }
+
+    function remove_wp_version() {
+        remove_action('wp_head', 'wp_generator');
+    }
+    add_action('init', 'remove_wp_version');

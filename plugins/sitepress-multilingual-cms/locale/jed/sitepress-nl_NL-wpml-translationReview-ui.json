@@ -3,7 +3,9 @@
    "locale_data": {
       "messages": {
          "": {
-            "domain": "messages"
+            "domain": "messages",
+            "plural_forms": "nplurals=2; plural=(n != 1);",
+            "lang": "nl_NL"
          },
          "Accepted": [
             "Goedgekeurd"
@@ -29,9 +31,6 @@
          "Edit translation": [
             "Vertaling bewerken"
          ],
-         "Please wait, applying translation..": [
-            "Even geduld, vertaling aanvragen..."
-         ],
          "Next review": [
             "Volgende controle."
          ],
@@ -44,11 +43,14 @@
          "Published!": [
             "Gepubliceerd!"
          ],
-         "Someone is already reviewing this translation. Please try again later.": [
-            "Iemand beoordeelt deze vertaling al. Probeer het later nog eens."
+         "Please wait, applying translation..": [
+            "Even geduld, vertaling aanvragen..."
          ],
          "There was an error in applying translation.": [
             "Er was een fout bij het aanvragen van de vertaling."
+         ],
+         "Someone is already reviewing this translation. Please try again later.": [
+            "Iemand beoordeelt deze vertaling al. Probeer het later nog eens."
          ]
       }
    }

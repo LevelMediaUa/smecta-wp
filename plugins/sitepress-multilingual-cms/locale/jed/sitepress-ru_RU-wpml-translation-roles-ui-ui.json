@@ -3,7 +3,9 @@
    "locale_data": {
       "messages": {
          "": {
-            "domain": "messages"
+            "domain": "messages",
+            "plural_forms": "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);",
+            "lang": "ru_RU"
          },
          "From:": [
             "С:"
@@ -13,6 +15,9 @@
          ],
          "to:": [
             "на:"
+         ],
+         "Select %s": [
+            "Выбрать %s"
          ],
          "Set language pair(s) for Translator %s:": [
             "Задать языковую(ые) пару(ы) для переводчика %s:"
@@ -32,6 +37,9 @@
          "(required)": [
             "(обязательно)"
          ],
+         "Select a role for the user": [
+            "Выбрать роль для пользователя"
+         ],
          "Make sure that you have provided a correct email address e.g. name@domain.com": [
             "Убедитесь, что адрес электронной почты введен правильно, например name@domain.com"
          ],
@@ -50,6 +58,12 @@
          "Search": [
             "Поиск"
          ],
+         "Cancel": [
+            "Отмена"
+         ],
+         "Add Translation Manager": [
+            "Добавить менеджера переводческих проектов"
+         ],
          "user": [
             "пользователя"
          ],
@@ -62,14 +76,14 @@
          "Create a new %s and set as Translation Manager": [
             "Создать нового %s и задать менеджером переводческих проектов"
          ],
-         "Cancel": [
-            "Отмена"
-         ],
-         "Add Translation Manager": [
-            "Добавить менеджера переводческих проектов"
-         ],
          "Add a Translation Manager": [
             "Добавить Менеджера переводческих проектов"
+         ],
+         "Select an existing user and set as Translator": [
+            "Выбрать существующего пользователя и задать переводчиком"
+         ],
+         "Create a new user and set as Translator": [
+            "Создать нового пользователя и задать переводчиком"
          ],
          "Set language pair(s)": [
             "Задать языковую(ые) пару(ы)"
@@ -83,12 +97,6 @@
          "Add a Translator": [
             "Добавить переводчика"
          ],
-         "Select an existing user and set as Translator": [
-            "Выбрать существующего пользователя и задать переводчиком"
-         ],
-         "Create a new user and set as Translator": [
-            "Создать нового пользователя и задать переводчиком"
-         ],
          "Edit language pair(s) for translator": [
             "Изменить языковую пару(ы) для переводчика"
          ],
@@ -100,6 +108,12 @@
          ],
          "You can translate to and from all languages": [
             "Вы можете переводить на все языки"
+         ],
+         "Edit language pair(s)": [
+            "Редактировать языковую пару (пары)"
+         ],
+         "Delete language pair(s)": [
+            "Удалить языковую пару (пары)"
          ],
          "%s file upload failed.": [
             "Не удалось загрузить файл %s."
@@ -117,7 +131,7 @@
             "Язык добавлен"
          ],
          "The value \"%s\" already exists": [
-            "Значение \"%s\" уже существует"
+            "Значение “%s” уже существует"
          ],
          "Add a new language": [
             "Добавить новый язык"
@@ -135,7 +149,7 @@
             "Щелкните здесь"
          ],
          "The wrong format. It may contain only small letters and \"-\". E.g: \"fr\" , \"pt-br\", \"zh-hans\"": [
-            "Неверный формат. Может содержать только строчные буквы и \"-\". Например: \"fr\" , \"pt-br\", \"zh-hans\""
+            "Неверный формат. Может содержать только строчные буквы и “-”. Например: “fr”, “pt-br”, “zh-hans”"
          ],
          "Language": [
             "Язык"
@@ -159,7 +173,7 @@
             "Регион по умолчанию"
          ],
          "The wrong format. It may contain only small letters and \"_\". E.g: \"de\" , \"de_DE\", \"zh_Hant_TW\"": [
-            "Неверный формат. Может содержать только строчные буквы и \"_\". Например: \"de\" , \"de_DE\", \"zh_Hant_TW\""
+            "Неверный формат. Может содержать только строчные буквы и “_”. Например: “de”, “de_DE”, “zh_Hant_TW”"
          ],
          "hreflang": [
             "hreflang"
@@ -219,10 +233,13 @@
             "Английский для пользователей из США: en-us"
          ],
          "Determines if URLs in this language are encoded or use ASCII characters (if unsure, leave it as \"No\").": [
-            "Определяет закодированы ли URL-адреса на этом языке, либо же в них используются символы ASCII (если не уверены, оставьте \"Нет\")."
+            "Определяет, кодируются ли URL-адреса на этом языке или используют ASCII-символы (если не уверены, оставьте “Нет”)."
          ],
          "adding a custom language": [
             "добавление пользовательского языка"
+         ],
+         "What are the languages of your site?": [
+            "Какой язык вашего сайта?"
          ],
          "Default language": [
             "Язык по умолчанию"
@@ -241,9 +258,6 @@
          ],
          "create a custom language": [
             "создайте пользовательский язык"
-         ],
-         "What are the languages of your site?": [
-            "Какой язык вашего сайта?"
          ],
          "You can add a dedicated person to oversee everything translation-related on your site. %sTranslation Managers%s can add new local translators or professional translation services, create and assign translation jobs, review completed translations, and change translation-related settings.": [
             "Вы можете добавить отдельное лицо, которое будет контролировать все связанное с переводом на вашем сайте. %sМенеджеры переводческих проектов%s могут добавлять новых собственных переводчиков или службы профессионального перевода, создавать и назначать заказы на перевод, проверять выполненные переводы и изменять настройки, связанные с переводом."

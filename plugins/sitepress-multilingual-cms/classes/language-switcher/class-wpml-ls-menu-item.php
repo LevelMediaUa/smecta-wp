@@ -1,5 +1,6 @@
 <?php
 
+#[AllowDynamicProperties]
 class WPML_LS_Menu_Item {
 
 	/**
@@ -7,6 +8,9 @@ class WPML_LS_Menu_Item {
 	 */
 	public $ID;                           // The term_id if the menu item represents a taxonomy term.
 	public $attr_title;                   // The title attribute of the link element for this menu item.
+	public $aria_label;                   // The aria-label attribute of the link element for this menu item.
+	public $link_role = 'menuitem';       // The role attribute for the link element.
+	public $item_role = 'none';           // The role attribute for the li element.
 	public $classes = array();            // The array of class attribute values for the link element of this menu item.
 	public $db_id;                        // The DB ID of this item as a nav_menu_item object, if it exists (0 if it doesn't exist).
 	public $description;                  // The description of this menu item.
@@ -45,11 +49,16 @@ class WPML_LS_Menu_Item {
 		$this->object_id        = isset( $lang['db_id'] ) ? $lang['db_id'] : null;
 		$this->db_id            = isset( $lang['db_id'] ) ? $lang['db_id'] : null;
 		$this->menu_item_parent = isset( $lang['menu_item_parent'] ) ? $lang['menu_item_parent'] : null;
-		$this->attr_title       = isset( $lang['display_name'] )
-			? $lang['display_name'] : ( isset( $lang['native_name'] ) ? $lang['native_name'] : '' );
-		$this->title            = $item_content;
-		$this->post_title       = $item_content;
-		$this->url              = isset( $lang['url'] ) ? $lang['url'] : null;
+
+		$is_current_lang    = isset( $lang['is_current'] ) ? $lang['is_current'] : null;
+		$ls_menu_item_label = ! $is_current_lang ? $lang['menu_item_label'] : '';
+
+		$this->aria_label = $ls_menu_item_label;
+		$this->attr_title = $ls_menu_item_label;
+
+		$this->title      = $item_content;
+		$this->post_title = $item_content;
+		$this->url        = isset( $lang['url'] ) ? $lang['url'] : null;
 
 		if ( isset( $lang['css_classes'] ) ) {
 			$this->classes = $lang['css_classes'];

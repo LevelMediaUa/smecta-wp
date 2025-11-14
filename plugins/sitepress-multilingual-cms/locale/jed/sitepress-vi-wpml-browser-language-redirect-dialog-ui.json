@@ -4,7 +4,8 @@
       "messages": {
          "": {
             "domain": "messages",
-            "lang": "en"
+            "plural_forms": "nplurals=1; plural=0;",
+            "lang": "vi_VN"
          },
          "How Browser Language Redirect Affects Google Indexing": [
             "Cách thức Chuyển hướng Ngôn ngữ Trình duyệt Ảnh hưởng đến Lập chỉ mục Google"

@@ -254,10 +254,11 @@ class WPML_Term_Translation extends WPML_Element_Translation {
 	 */
 	protected function get_element_join() {
 
-		return "FROM {$this->wpdb->prefix}icl_translations wpml_translations
+		return "
 				JOIN {$this->wpdb->term_taxonomy} tax
 					ON wpml_translations.element_id = tax.term_taxonomy_id
-						AND wpml_translations.element_type = CONCAT('tax_', tax.taxonomy)";
+						AND wpml_translations.element_type = CONCAT('tax_', tax.taxonomy)
+		";
 	}
 
 	/**
@@ -267,7 +268,7 @@ class WPML_Term_Translation extends WPML_Element_Translation {
 	 */
 	protected function get_query_sql( $cols = 'wpml_translations.element_id, tax.term_id, tax.taxonomy' ) {
 		$sql  = '';
-		$sql .= "SELECT {$cols} " . $this->get_element_join();
+		$sql .= "SELECT {$cols} FROM {$this->wpdb->prefix}icl_translations wpml_translations" . $this->get_element_join();
 		$sql .= " JOIN {$this->wpdb->terms} terms";
 		$sql .= ' ON terms.term_id = tax.term_id';
 		$sql .= ' WHERE tax.term_id != tax.term_taxonomy_id';
@@ -289,10 +290,13 @@ class WPML_Term_Translation extends WPML_Element_Translation {
 		$key = 'items_count_for_cache';
 
 		$get_count = function() use ( $key ) {
-			$sql   = $this->get_query_sql( 'COUNT(tax.term_id) AS rowsCount' );
+			$sql = $this->get_query_sql( 'tax.term_id' );
+			// Query one more than the max warmup count.
+			$sql = $sql . ' LIMIT 0, ' . ( $this->get_cache_max_warmup_count() + 1 );
+
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$data  = $this->wpdb->get_results( $sql, ARRAY_A );
-			$count = (int) $data[0]['rowsCount'];
+			$count = is_array( $data ) ? count( $data ) : 0;
 
 			Cache::set( self::CACHE_GROUP, $key, $this->get_cache_expire(), $count );
 

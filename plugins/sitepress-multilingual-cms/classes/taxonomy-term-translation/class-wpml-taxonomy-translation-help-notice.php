@@ -161,7 +161,7 @@ class WPML_Taxonomy_Translation_Help_Notice {
 	public function enqueue_scripts() {
 		$notice = $this->get_notice();
 		if ( $notice ) {
-			wp_register_script( 'wpml-dismiss-taxonomy-help-notice', ICL_PLUGIN_URL . '/res/js/dismiss-taxonomy-help-notice.js', array( 'jquery' ) );
+			wp_register_script( 'wpml-dismiss-taxonomy-help-notice', ICL_PLUGIN_URL . '/res/js/dismiss-taxonomy-help-notice.js', array( 'jquery' ), ICL_SITEPRESS_SCRIPT_VERSION );
 			wp_localize_script(
 				'wpml-dismiss-taxonomy-help-notice',
 				'wpml_notice_information',

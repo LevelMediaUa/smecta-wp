@@ -3,19 +3,36 @@
    "locale_data": {
       "messages": {
          "": {
-            "domain": "messages"
+            "domain": "messages",
+            "plural_forms": "nplurals=1; plural=0;",
+            "lang": "ja"
          },
          "WPML Translation Editor": [
             "WPML 翻訳エディター"
          ],
-         "Use only when you want to translate content from one of the few plugins that are not compatible with WPML’s translation editor or  if you would like to create different designs for the same page in different languages.": [
-            "　WPMLの翻訳エディターと互換性がないプラグインの1つからのコンテンツを翻訳するときのみ使用するか、異なる言語の同じページに違うデザインを作成するときのみ使用してください。"
-         ],
          "WordPress Editor": [
             "WordPress エディター"
          ],
-         "Use the editor to translate:": [
-            "エディターを使って翻訳する:"
+         "Translation Dashboard": [
+            "翻訳ダッシュボード"
+         ],
+         "Also, switching back to WPML's Translation Editor later will require re-translating content that you translated with the WordPress editor.": [
+            "また、後でWPMLの翻訳エディターに戻すと、WordPressエディターで翻訳したコンテンツを再翻訳する必要があります。"
+         ],
+         "This will overwrite content you translated with the WordPress Editor. If you switch now, you'll have to translate selected content again.": [
+            "これにより、WordPressエディターで翻訳したコンテンツが上書きされます。今切り替えると、選択したコンテンツを再度翻訳する必要があります。"
+         ],
+         "You are about to translate with the %s": [
+            "今から%sで翻訳しようとしています"
+         ],
+         "Translate with the WordPress Editor if you need different designs per language or if the content isn't compatible with WPML's Translation Editor.": [
+            "言語ごとに異なるデザインが必要な場合や、コンテンツがWPMLの翻訳エディターと互換性がない場合は、WordPressエディターで翻訳してください。"
+         ],
+         "What do you want to translate?": [
+            "何を翻訳したいですか？"
+         ],
+         "I understand, switch to the WordPress Editor": [
+            "理解しました。WordPressエディターに切り替えます"
          ],
          "Apply": [
             "適用"
@@ -23,14 +40,29 @@
          "Cancel": [
             "キャンセル"
          ],
-         "This %s": [
-            "この%s"
+         "I understand, switch to %s": [
+            "理解しました。%sに切り替えます"
+         ],
+         "Only this %s": [
+            "この%sのみ"
+         ],
+         "Recommended": [
+            "推奨"
          ],
          "All %s": [
             "全%s"
          ],
          "All the site's content": [
             "全てのサイトコンテンツ"
+         ],
+         "I understand, switch to Translation Dashboard": [
+            "わかりました。翻訳ダッシュボードに切り替えます"
+         ],
+         "The WordPress Editor doesn't offer Automatic Translation, Translation Memory and other features that make translation easier.": [
+            "WordPressエディターには、自動翻訳、翻訳メモリ、その他翻訳を容易にする機能がありません。"
+         ],
+         "Translate items in batch after reviewing the cost of AI translation": [
+            "AI翻訳のコストを確認した後、アイテムをバッチで翻訳します"
          ]
       }
    }

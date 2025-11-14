@@ -51,6 +51,20 @@ class WPML_Translations_Queue {
 		if ( $this->must_open_the_editor() ) {
 			$response = $this->editor->open( $_GET );
 
+			/** try to capture custom event for posthog */
+			\WPML\PostHog\Event\CaptureEvent::capture(
+				'wpml_open_translation_editor',
+				[
+					'editor' => Obj::prop( 'editor', $response ),
+					'job_id' => Obj::prop( 'job_id', $_GET )
+				],
+				[
+					'wp_email' => \WPML\LIB\WP\User::getCurrent()->user_email,
+					'site_key' => function_exists( 'OTGS_Installer' ) ? OTGS_Installer()->get_site_key( 'wpml' ) : '',
+					'site_url' => get_site_url(),
+				]
+			);
+
 			if ( in_array( Obj::prop( 'editor', $response ), [ \WPML_TM_Editors::ATE, \WPML_TM_Editors::WP ] ) ) {
 				wp_safe_redirect( Obj::prop('url', $response), 302, 'WPML' );
 				return;

@@ -6,6 +6,7 @@ use SitePress;
 use WPML_Element_Translation_Package;
 use WPML_TM_Translation_Batch;
 use WPML_Post_Element;
+use WPML\MediaTranslation\MediaField;
 
 class MediaTranslationStatus implements \IWPML_Action {
 
@@ -20,9 +21,15 @@ class MediaTranslationStatus implements \IWPML_Action {
 	 * @var SitePress
 	 */
 	private $sitepress;
+	
+	/**
+	 * @var MediaField
+	 */
+	private $media_field;
 
 	public function __construct( SitePress $sitepress ) {
 		$this->sitepress = $sitepress;
+		$this->media_field = new MediaField();
 	}
 
 	public function add_hooks() {
@@ -75,13 +82,13 @@ class MediaTranslationStatus implements \IWPML_Action {
 	}
 
 	private function get_media_translations( $job ) {
-
 		$media = array();
 
-		$media_field_regexp = '#^media_([0-9]+)_([a-z_]+)$#';
 		foreach ( $job->elements as $element ) {
-			if ( preg_match( $media_field_regexp, $element->field_type, $matches ) ) {
-				list( , $attachment_id, $media_field ) = $matches;
+			$result = $this->media_field->extractAttachmentIdAndMediaFields( $element->field_type );
+			if ( $result ) {
+				$attachment_id = $result['attachment_id'];
+				$media_field = $result['media_field'];
 				$media[ $attachment_id ][ $media_field ] = $element;
 			}
 		}
@@ -98,9 +105,13 @@ class MediaTranslationStatus implements \IWPML_Action {
 	 * @return bool|int|WP_Error
 	 */
 	private function save_attachment_translation( $attachment_id, $translation_data, $translation_package, $language ) {
+		$postarr             = [];
+		$alt_text            = null;
+		$media_custom_fields = [];
 
-		$postarr  = array();
-		$alt_text = null;
+		$post_element              = new WPML_Post_Element( $attachment_id, $this->sitepress );
+		$attachment_translation    = $post_element->get_translation( $language );
+		$attachment_translation_id = null !== $attachment_translation ? $attachment_translation->get_id() : false;
 
 		foreach ( $translation_data as $field => $data ) {
 
@@ -109,34 +120,30 @@ class MediaTranslationStatus implements \IWPML_Action {
 				$data->field_format
 			);
 
-			if ( 'alt_text' === $field ) {
-				$alt_text = $translated_value;
-			} else {
-
-				switch ( $field ) {
-					case 'title':
-						$wp_post_field = 'post_title';
-						break;
-					case 'caption':
-						$wp_post_field = 'post_excerpt';
-						break;
-					case 'description':
-						$wp_post_field = 'post_content';
-						break;
-					default:
-						$wp_post_field = '';
-
-				}
-
-				if ( $wp_post_field ) {
+			switch ( $field ) {
+				case 'title':
+					$wp_post_field             = 'post_title';
 					$postarr[ $wp_post_field ] = $translated_value;
-				}
+					break;
+				case 'caption':
+					$wp_post_field             = 'post_excerpt';
+					$postarr[ $wp_post_field ] = $translated_value;
+					break;
+				case 'description':
+					$wp_post_field             = 'post_content';
+					$postarr[ $wp_post_field ] = $translated_value;
+					break;
+				case 'alt_text':
+					$alt_text = $translated_value;
+					break;
+				default:
+					$media_custom_fields[ $field ] = $translated_value;
+					$field                         = $this->media_field->getFieldId( $field );
+					if ( $attachment_translation_id ) {
+						delete_post_meta( $attachment_translation_id, $field );
+					}
 			}
 		}
-
-		$post_element              = new WPML_Post_Element( $attachment_id, $this->sitepress );
-		$attachment_translation    = $post_element->get_translation( $language );
-		$attachment_translation_id = null !== $attachment_translation ? $attachment_translation->get_id() : false;
 
 		if ( $attachment_translation_id ) {
 			$postarr['ID'] = $attachment_translation_id;
@@ -157,6 +164,11 @@ class MediaTranslationStatus implements \IWPML_Action {
 
 		if ( null !== $alt_text ) {
 			update_post_meta( $attachment_translation_id, '_wp_attachment_image_alt', $alt_text );
+		}
+
+		foreach ( $media_custom_fields as $field => $value ) {
+			$field = $this->media_field->getFieldId( $field );
+			add_post_meta( $attachment_translation_id, $field, $value );
 		}
 
 		return $attachment_translation_id;

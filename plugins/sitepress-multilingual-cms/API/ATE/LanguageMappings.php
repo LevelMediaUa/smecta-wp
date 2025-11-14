@@ -24,14 +24,30 @@ class LanguageMappings {
 	const IGNORE_MAPPING_OPTION = 'wpml-languages-ignore-mapping';
 	const IGNORE_MAPPING_ID = - 1;
 
-	public static function withCanBeTranslatedAutomatically( $languages = null ) {
-		$fn = curryN( 1, function ( $languages ) {
+
+	public static function getAllLanguagesWithAutomaticSupportInfo( $sourceLang = null ): array {
+		return static::withCanBeTranslatedAutomatically( Languages::getActive(), $sourceLang );
+	}
+
+	public static function doesDefaultLanguageSupportAutomaticTranslations(): bool {
+		$languages = static::getAllLanguagesWithAutomaticSupportInfo();
+
+		$default = $languages[ Languages::getDefaultCode() ] ?? null;
+		if ( $default ) {
+			return Obj::prop( 'can_be_translated_automatically', $default );
+		}
+
+		return false;
+	}
+
+	public static function withCanBeTranslatedAutomatically( $languages = null, $sourceLang = null ) {
+		$fn = curryN( 1, function ( $languages, $sourceLang = null ) {
 			if ( ! is_object( $languages ) && ! is_array( $languages ) ) {
 				return $languages;
 			}
 			$ateAPI             = static::getATEAPI();
 			$targetCodes        = Lst::pluck( 'code', Obj::values( $languages ) );
-			$supportedLanguages = $ateAPI->get_languages_supported_by_automatic_translations( $targetCodes )->getOrElse( [] );
+			$supportedLanguages = $ateAPI->get_languages_supported_by_automatic_translations( $targetCodes, $sourceLang )->getOrElse( [] );
 
 			$areThereAnySupportedLanguages = Lst::find( Logic::isNotNull(), $supportedLanguages );
 			$isSupportedCode               = pipe( Obj::prop( Fns::__, $supportedLanguages ), Logic::isNotNull() );
@@ -49,7 +65,17 @@ class LanguageMappings {
 				Logic::ifElse( $isDefaultCode, $isDefaultLangSupported, $isSupportedCode )
 			) );
 
-			return Fns::map( Obj::addProp( 'can_be_translated_automatically', $isSupported ), $languages );
+			$engine = function( $language ) use ( $supportedLanguages ) {
+				return $supportedLanguages->{$language['code']}->engine ?? null;
+			};
+
+			return Fns::map(
+				pipe(
+					Obj::addProp( 'engine', $engine ),
+					Obj::addProp( 'can_be_translated_automatically', $isSupported )
+				),
+				$languages
+			);
 		} );
 
 		return call_user_func_array( $fn, func_get_args() );
@@ -155,7 +181,13 @@ class LanguageMappings {
 			return Obj::pathOr( null, [ 'mapping', 'targetCode' ], $language ) === $defaultLanguageMappingTargetCode;
 		} );
 
-		return call_user_func_array( $fn, func_get_args() );
+		try {
+			$hasMapping = call_user_func_array( $fn, func_get_args() );
+		} catch ( \InvalidArgumentException $e ) {
+			$hasMapping = false;
+		}
+
+		return $hasMapping;
 	}
 
 	/**

@@ -3,7 +3,9 @@
    "locale_data": {
       "messages": {
          "": {
-            "domain": "messages"
+            "domain": "messages",
+            "plural_forms": "nplurals=2; plural=(n > 1);",
+            "lang": "pt_BR"
          },
          "Accepted": [
             "Aceito"
@@ -29,9 +31,6 @@
          "Edit translation": [
             "Editar tradução"
          ],
-         "Please wait, applying translation..": [
-            "Aguarde, aplicando tradução…"
-         ],
          "Next review": [
             "Próxima revisão"
          ],
@@ -44,11 +43,14 @@
          "Published!": [
             "Publicado!"
          ],
-         "Someone is already reviewing this translation. Please try again later.": [
-            "Alguém já está revisando esta tradução. Tente novamente mais tarde."
+         "Please wait, applying translation..": [
+            "Aguarde, aplicando tradução…"
          ],
          "There was an error in applying translation.": [
             "Houve um erro ao aplicar a tradução."
+         ],
+         "Someone is already reviewing this translation. Please try again later.": [
+            "Alguém já está revisando esta tradução. Tente novamente mais tarde."
          ]
       }
    }

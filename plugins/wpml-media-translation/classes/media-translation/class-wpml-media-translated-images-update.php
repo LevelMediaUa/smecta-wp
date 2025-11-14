@@ -66,6 +66,12 @@ class WPML_Media_Translated_Images_Update {
 			return $media_src === $pre_update_translated_media_guid;
 		};
 
+		$remove_dimension_suffix = function ( $media_src, $media_extension ) {
+			$sanitize_pattern = '/-\d+x\d+\.' . $media_extension . '$/';
+
+			return preg_replace( $sanitize_pattern, '.' . $media_extension, $media_src );
+		};
+
 		/**
 		 * Checks if media src in post content (not updated yet) contains old media that was uploaded but now its guid replaced in database.
 		 *
@@ -73,14 +79,20 @@ class WPML_Media_Translated_Images_Update {
 		 *
 		 * @return bool
 		 */
-		$media_src_contains_pre_update = function ( $media_src ) use ( $pre_update_translated_media_guid ) {
+		$media_src_contains_pre_update = function ( $media_src ) use ( $remove_dimension_suffix, $pre_update_translated_media_guid ) {
 			$thumb_file_name                   = basename( $pre_update_translated_media_guid );
 			$pre_update_translated_media_parts = explode( '.', $thumb_file_name );
+
+			if ( ! $pre_update_translated_media_parts[0] || ! $pre_update_translated_media_parts[1] ) {
+				return false;
+			}
 
 			$media_src_extension                   = pathinfo( $media_src, PATHINFO_EXTENSION );
 			$pre_update_translated_media_extension = is_array( $pre_update_translated_media_parts ) ? end( $pre_update_translated_media_parts ) : null;
 
-			return $pre_update_translated_media_parts[0] && false !== strpos( $media_src, $pre_update_translated_media_parts[0] ) && $media_src_extension === $pre_update_translated_media_extension;
+			$sanitized_media_src = $remove_dimension_suffix( $media_src, $pre_update_translated_media_parts[1] );
+
+			return false !== str_ends_with( $sanitized_media_src, implode( '.', $pre_update_translated_media_parts ) ) && $media_src_extension === $pre_update_translated_media_extension;
 		};
 
 		if ( ! empty( $media_parsers ) ) {
@@ -243,7 +255,7 @@ class WPML_Media_Translated_Images_Update {
 	private function replaceAttributeInHref( $text, $from, $to, $source_lang ) {
 		$pattern = '/<a.*?href="(.*?)".*?>/u';
 
-		$attach_id = $this->image_translator->get_attachment_id_by_url( $from, $source_lang );
+		$attach_id = $this->image_translator->get_attachment_id_by_url( $from, $this->getSourceLanguage( $source_lang ) );
 		$from      = get_post_field( 'guid', $attach_id );
 
 		$replacement = function ( $matches ) use ( $from, $to ) {

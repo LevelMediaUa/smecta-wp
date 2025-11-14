@@ -10,6 +10,9 @@ use WPML\FP\Either;
 use WPML\FP\Right;
 use WPML\FP\Left;
 use WPML\Plugins;
+use WPML\PostHog\Config\PostHogConfig;
+use WPML\PostHog\State\PostHogState;
+
 
 class LicenseStep implements IHandler {
 	const ACTION_REGISTER_SITE_KEY = 'register-site-key';
@@ -44,12 +47,24 @@ class LicenseStep implements IHandler {
 			} else {
 				icl_set_setting( 'site_key', $site_key, true );
 				$isTMAllowed = Plugins::updateTMAllowedOption();
-				return Right::of(
-					[
-						'isTMAllowed' => $isTMAllowed,
-						'msg'         => __( 'Thank you for registering WPML on this site. You will receive automatic updates when new versions are available.', 'sitepress' ),
-					]
-				);
+
+				$response = [
+					'isTMAllowed' => $isTMAllowed,
+					'msg'         => __( 'Thank you for registering WPML on this site. You will receive automatic updates when new versions are available.', 'sitepress' )
+				];
+
+				// When the site key is registered successfully.,
+				// we need to check if PostHog is enabled for this site and if the PostHog script isn't already printed.
+				// Then we send the PostHog config in the response to import the PostHoh script dynamically and
+				// start session recording
+				if (
+					! wp_script_is( 'wpml-posthog', 'done' ) &&
+					PostHogState::isEnabled()
+				) {
+					$response['postHogConfig'] = PostHogConfig::create();
+				}
+
+				return Right::of( $response );
 			}
 		}
 
@@ -69,4 +84,6 @@ class LicenseStep implements IHandler {
 			__( 'Server error. Please refresh and try again.', 'sitepress' )
 		);
 	}
+
+
 }

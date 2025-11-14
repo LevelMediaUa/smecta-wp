@@ -171,7 +171,6 @@ function icl_upgrade_2_0_0_steps( $step, $stepper ) {
 									'needs_update'        => $needs_update,
 									'md5'                 => $md5,
 									'translation_service' => $service,
-									'translation_package' => serialize( $translation_package ),
 									'links_fixed'         => intval( isset( $links_fixed ) ? $links_fixed : 0 ),
 								)
 							);

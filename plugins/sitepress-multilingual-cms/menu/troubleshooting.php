@@ -719,7 +719,9 @@ if ( $shared ) {
 		<small style="margin-left:10px;"><?php _e( 'Correct terms count in case something went wrong with translated contents.', 'sitepress' ); ?></small>
 	</p>
 	<p>
-		<input id="icl_fix_post_types" type="button" class="button-secondary" value="<?php _e( 'Fix post type assignment for translations', 'sitepress' ); ?>"/><br/>
+		<input id="icl_fix_post_types" type="button" class="button-secondary" value="<?php _e( 'Fix post type assignment for translations', 'sitepress' ); ?>"/>
+		<span id="icl_fix_post_types_posts_left_msg" style="display: none; padding: 8px 0px 0px 5px"><span>0</span> <?php esc_html_e( 'posts left', 'sitepress' ); ?></span>
+		<br/>
 		<small style="margin-left:10px;"><?php _e( 'Correct post type assignment for translations of custom post types in case something went wrong.', 'sitepress' ); ?></small>
 	</p>
 

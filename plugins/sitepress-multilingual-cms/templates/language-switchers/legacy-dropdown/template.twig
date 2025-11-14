@@ -6,23 +6,23 @@
 
 <div
 	 class="{{ css_classes }} wpml-ls-legacy-dropdown js-wpml-ls-legacy-dropdown"{% if backward_compatibility.css_id %} id="{{ backward_compatibility.css_id }}"{% endif %}>
-	<ul>
+	<ul role="menu">
 
-		<li tabindex="0" class="{{ current_language.css_classes }} wpml-ls-item-legacy-dropdown">
-			<a href="#" class="{{ ('js-wpml-ls-item-toggle wpml-ls-item-toggle ' ~ current_language.backward_compatibility.css_classes_a)|trim }}">
+		<li role="none" tabindex="0" class="{{ current_language.css_classes }} wpml-ls-item-legacy-dropdown">
+			<a href="#" class="{{ ('js-wpml-ls-item-toggle wpml-ls-item-toggle ' ~ current_language.backward_compatibility.css_classes_a)|trim }}" role="menuitem" title="{{ current_language.menu_item_label }}">
                 {% include 'flag.twig' with {language: current_language, css_classes_flag: css_classes_flag} %}
 
                 {%- if current_language.display_name or current_language.native_name -%}
 					{%- set current_language_name = current_language.display_name|default(current_language.native_name) -%}
-					<span class="{{ css_classes_native }}">{{- current_language_name -}}</span>
+					<span class="{{ css_classes_native }}" role="menuitem">{{- current_language_name -}}</span>
 				{%- endif -%}
 			</a>
 
-			<ul class="wpml-ls-sub-menu">
+			<ul class="wpml-ls-sub-menu" role="menu">
 				{% for language in languages if not language.is_current %}
 
-					<li class="{{ language.css_classes }}">
-						<a href="{{ language.url }}" class="{{ css_classes_link }}">
+					<li class="{{ language.css_classes }}" role="none">
+						<a href="{{ language.url }}" class="{{ css_classes_link }}" role="menuitem" aria-label="{{ language.menu_item_label }}" title="{{ language.menu_item_label }}">
                             {% include 'flag.twig' %}
 
 							{%- if language.native_name -%}
