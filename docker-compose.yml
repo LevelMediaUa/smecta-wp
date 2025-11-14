@@ -42,7 +42,7 @@ services:
     image: phpmyadmin/phpmyadmin
     environment:
       PMA_HOST: wp_db
-      PMA_USER: root
+      PMA_USER: $DB_USER
       PMA_PASSWORD: $DB_PASSWORD
       UPLOAD_LIMIT: 64M
       PMA_ARBITRARY: 1
