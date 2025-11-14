@@ -2,16 +2,16 @@ services:
   wordpress:
     image: wordpress:latest
     volumes:
-        - wp_app:/var/www/html
-#        - ../files/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
-#        - ./themes/:/var/www/html/wp-content/themes
-#        - ./plugins/:/var/www/html/wp-content/plugins
-#        - ./uploads/:/var/www/html/wp-content/uploads
-#    command: >
-#      bash -c "
-#      chown -R www-data:www-data /var/www/html/wp-content /var/www/html/wp-content/uploads /var/www/html/wp-content/themes /var/www/html/wp-content/plugins &&
-#      apache2-foreground
-#      "
+#        - wp_app:/var/www/html
+        - ../files/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+        - ./themes/:/var/www/html/wp-content/themes
+        - ./plugins/:/var/www/html/wp-content/plugins
+        - ./uploads/:/var/www/html/wp-content/uploads
+    command: >
+      bash -c "
+      chown -R www-data:www-data /var/www/html/wp-content /var/www/html/wp-content/uploads /var/www/html/wp-content/themes /var/www/html/wp-content/plugins &&
+      apache2-foreground
+      "
     environment:
       WORDPRESS_DB_HOST: wp_db
       WORDPRESS_DB_NAME: $DB_NAME
@@ -51,6 +51,5 @@ services:
       - wp_db
 
 volumes:
-  wp_app:
   wp_data:
   phpmyadmin:
