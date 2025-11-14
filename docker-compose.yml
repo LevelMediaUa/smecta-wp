@@ -11,7 +11,7 @@ services:
       bash -c "
       chown -R www-data:www-data /var/www/html/wp-content /var/www/html/wp-content/uploads /var/www/html/wp-content/themes /var/www/html/wp-content/plugins &&
       apache2-foreground
-#      "
+      "
     environment:
       WORDPRESS_DB_HOST: wp_db
       WORDPRESS_DB_NAME: $DB_NAME
